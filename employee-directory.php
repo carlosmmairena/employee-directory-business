@@ -35,6 +35,4 @@ register_deactivation_hook(__FILE__, function() {
     wp_clear_scheduled_hook( 'edir_cron_sync_event' );
 });
 
-
 add_action( 'edir_cron_sync_event', [ 'EDir_CSV_Importer', 'sync_from_csv' ] );
-

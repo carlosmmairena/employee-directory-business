@@ -34,8 +34,19 @@ class EDir_Admin
                 <form method="post">
                     <?php submit_button('🔄 Sincronizar empleados desde CSV', 'secondary', 'edir_sync_csv'); ?>
                 </form>
+
+                <?php $log_file = EDIR_PLUGIN_PATH . 'sync-log.txt'; 
+                    if (file_exists( $log_file ))
+                    {
+                        $lines = array_reverse( file( $log_file ) );
+                        echo '<h2>📄 Registro de sincronización</h2><textarea rows="10" style="width:100%;" readonly>';
+                        echo esc_textarea(implode( '', $lines ));
+                        echo '</textarea>';
+                    } 
+                ?>
             </div>
         <?php
+
 
         // Procesar sincronización si se hizo clic
         if ( isset( $_POST['edir_sync_csv'] ) ) {
