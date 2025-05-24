@@ -51,7 +51,8 @@ class EDir_CSV_Importer
         self::log_event("✔️ Sincronización completada. Empleados importados: $imported.");
     }
 
-    public static function log_event( $message ) {
+    public static function log_event( $message )
+    {
         $log_file = EDIR_PLUGIN_PATH . 'sync-csv-log.txt';
         $date = date( 'Y-m-d H:i:s' );
         $entry = "[$date] $message\n";
