@@ -1,0 +1,29 @@
+services:
+
+  wordpress:
+    image: wordpress:php8.4-apache
+    restart: always
+    ports:
+      - 81:80
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: worduser
+      WORDPRESS_DB_PASSWORD: wordpass
+      WORDPRESS_DB_NAME: wordtest
+    volumes:
+      - wordpress:/var/www/html
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: wordtest
+      MYSQL_USER: worduser
+      MYSQL_PASSWORD: wordpass
+      MYSQL_ROOT_PASSWORD: 'wordpass'
+    volumes:
+      - db:/var/lib/mysql
+
+volumes:
+  wordpress:
+  db:
