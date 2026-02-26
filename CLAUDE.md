@@ -179,13 +179,14 @@ Attributes override admin defaults. Shortcode attributes: `fields` (comma-separa
 **HTML structure:**
 ```
 .ldap-directory-wrap[data-per-page][data-total]
-  .ldap-search-wrap > #ldap-search-input          (conditional)
+  .ldap-search-wrap > #ldap-search-input                     (conditional; icon via CSS ::before)
   .ldap-directory-grid[aria-live="polite"]
     article.ldap-employee-card[data-name][data-email][data-title][data-department]
-      h3.ldap-name | p.ldap-title | p.ldap-department | a.ldap-email
+      div.ldap-card-avatar[aria-hidden][style="--ldap-avatar-bg:#hex"]   (initials circle)
+      h3.ldap-name | p.ldap-title | p.ldap-department > span.ldap-dept-badge | a.ldap-email
   p.ldap-no-results.ldap-no-results--search       (shown by JS when search yields nothing)
   nav.ldap-pagination
-    button.ldap-prev | span.ldap-page-info | button.ldap-next
+    button.ldap-btn.ldap-prev | span.ldap-page-info | button.ldap-btn.ldap-next
 ```
 
 **CSS custom properties** (set on the wrapper or via page builder controls):
@@ -197,8 +198,12 @@ Attributes override admin defaults. Shortcode attributes: `fields` (comma-separa
 | `--ldap-text-color` | `#3c434a` | All contexts |
 | `--ldap-columns` | `3` | Shortcode attr / Elementor / BB |
 | `--ldap-gap` | `20px` | Elementor / BB |
-| `--ldap-card-radius` | `6px` | Elementor / BB |
+| `--ldap-card-radius` | `8px` | Elementor / BB |
 | `--ldap-font-size` | — | BB module only |
+| `--ldap-avatar-size` | `44px` | All contexts |
+| `--ldap-avatar-bg` | per-card inline style | Template (computed from name hash) |
+| `--ldap-dept-badge-bg` | `rgba(0,115,170,.08)` | All contexts |
+| `--ldap-dept-badge-color` | `#005a87` | All contexts |
 
 ## Page Builder Integrations
 

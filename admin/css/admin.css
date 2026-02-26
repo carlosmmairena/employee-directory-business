@@ -5,9 +5,9 @@
 /* Two-column layout */
 .ldap-ed-admin-layout {
 	display: flex;
-	gap: 30px;
+	gap: 28px;
 	align-items: flex-start;
-	margin-top: 20px;
+	margin-top: 24px;
 }
 
 .ldap-ed-settings-col {
@@ -16,43 +16,91 @@
 }
 
 .ldap-ed-sidebar-col {
-	flex: 0 0 300px;
-	max-width: 300px;
+	flex: 0 0 280px;
+	max-width: 280px;
 }
 
-/* Cards */
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+
 .ldap-ed-card {
 	background: #fff;
 	border: 1px solid #c3c4c7;
+	border-top: 3px solid #0073aa;  /* accent stripe — overridden per card type below */
 	border-radius: 4px;
-	padding: 18px 20px;
-	margin-bottom: 20px;
+	padding: 16px 18px 18px;
+	margin-bottom: 16px;
+}
+
+.ldap-ed-card--cache {
+	border-top-color: #00a0d2;
+}
+
+.ldap-ed-card--usage {
+	border-top-color: #72777c;
 }
 
 .ldap-ed-card h2 {
-	margin: 0 0 10px;
-	font-size: 14px;
+	margin: 0 0 6px;
+	font-size: 11px;
 	font-weight: 600;
+	color: #1d2327;
+	text-transform: uppercase;
+	letter-spacing: .06em;
+}
+
+.ldap-ed-card p {
+	margin: 0 0 12px;
+	color: #646970;
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+.ldap-ed-card p.ldap-ed-card__label {
+	margin-top: 10px;
+	margin-bottom: 0;
+}
+
+.ldap-ed-card .button {
+	margin-top: 2px;
 }
 
 .ldap-ed-card code {
 	display: block;
-	background: #f0f0f1;
-	border: 1px solid #c3c4c7;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
 	border-radius: 3px;
-	padding: 6px 10px;
+	padding: 7px 10px;
 	font-size: 12px;
+	font-family: Consolas, 'Courier New', monospace;
 	margin-top: 6px;
 	word-break: break-all;
+	color: #3c434a;
+	line-height: 1.5;
 }
 
-/* Test result */
+/* ── Result banners ─────────────────────────────────────────────────────── */
+
 .ldap-ed-test-result {
-	margin-top: 12px;
-	padding: 10px 14px;
-	border-radius: 4px;
+	margin-top: 10px;
+	padding: 8px 12px 8px 34px;
+	border-radius: 3px;
 	font-size: 13px;
+	line-height: 1.4;
 	display: none;
+	position: relative;
+}
+
+/* Icon slot shared by both states */
+.ldap-ed-test-result::before {
+	content: '';
+	position: absolute;
+	left: 11px;
+	top: 50%;
+	transform: translateY( -50% );
+	width: 14px;
+	height: 14px;
+	background-size: contain;
+	background-repeat: no-repeat;
 }
 
 .ldap-ed-test-result.is-success {
@@ -62,6 +110,10 @@
 	color: #1e4620;
 }
 
+.ldap-ed-test-result.is-success::before {
+	background-image: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2346b450' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6L9 17l-5-5'/%3E%3C/svg%3E" );
+}
+
 .ldap-ed-test-result.is-error {
 	display: block;
 	background: #fde8e8;
@@ -69,13 +121,27 @@
 	color: #5c1010;
 }
 
-/* Responsive */
+.ldap-ed-test-result.is-error::before {
+	background-image: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23dc3232' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 8v5M12 16h.01'/%3E%3C/svg%3E" );
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
 @media ( max-width: 1024px ) {
 	.ldap-ed-admin-layout {
 		flex-direction: column;
 	}
+
 	.ldap-ed-sidebar-col {
 		flex: 1 1 auto;
 		max-width: 100%;
+		display: grid;
+		grid-template-columns: repeat( auto-fit, minmax( 220px, 1fr ) );
+		gap: 16px;
+	}
+
+	/* Cards inside the grid don't need bottom margin — gap handles spacing. */
+	.ldap-ed-card {
+		margin-bottom: 0;
 	}
 }
