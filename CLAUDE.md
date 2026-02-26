@@ -8,8 +8,8 @@ WordPress plugin (GPL v2) that connects a site to an LDAP/LDAPS server and rende
 - **Text domain:** `ldap-employee-directory`
 - **Constant/class prefix:** `LDAP_ED_`
 - **Option key:** `ldap_ed_settings` (constant `LDAP_ED_OPTION_KEY`)
-- **Cache transient key:** `ldap_ed_users` (constant `LDAP_ED_CACHE_KEY`)
-- **Requires:** PHP 7.4+, WordPress 5.8+, PHP `ldap` extension
+- **Cache transient key:** `ldap_ed_users` (constant `LDAP_ED_CACHE_KEY`) — single global key, no per-shortcode variation
+- **Requires:** PHP 7.4+, WordPress 5.8+, PHP `ldap` extension (checked on activation)
 
 ## File Structure
 
@@ -27,13 +27,13 @@ beaver-builder/
   class-bb-module.php                # LDAP_ED_BB_Module
   frontend.php                       # BB module front-end template
 admin/
-  views/settings-page.php            # Admin settings page HTML
+  views/settings-page.php            # Admin settings page HTML (two-column: form + sidebar)
   css/admin.css
-  js/admin.js                        # AJAX: test connection, clear cache
+  js/admin.js                        # AJAX: test connection, clear cache (jQuery-dependent)
 public/
   views/directory.php                # Front-end directory card grid
   css/directory.css                  # Styles using CSS custom properties
-  js/directory.js                    # Client-side search + pagination (vanilla JS)
+  js/directory.js                    # Client-side search + pagination (vanilla JS, no dependencies)
 uninstall.php                        # Cleanup on uninstall
 readme.txt                           # WordPress.org readme
 ```
@@ -43,38 +43,117 @@ readme.txt                           # WordPress.org readme
 - **Bootstrap:** `plugins_loaded` → `ldap_ed_init()` instantiates Admin, Ajax, Shortcode. Page builder integrations are lazy-registered only when the builder is active.
 - **Autoloader:** `ldap_ed_autoload()` maps class names to files via a manual `$map` array — no PSR-4.
 - **Data flow:** Shortcode/widget → `LDAP_ED_Cache::get()` → on miss → `LDAP_ED_Connector::get_users()` → store result via `LDAP_ED_Cache::set()`.
-- **Caching:** WP Transients. TTL default 60 min. Cache is flushed automatically when settings are saved and manually via the admin AJAX action.
+- **Caching:** WP Transients. TTL default 60 min (stored in minutes, converted to seconds internally). Cache is flushed automatically when settings are saved and manually via the admin AJAX action.
 - **Page builders:** Both Elementor widget and BB module delegate rendering to `do_shortcode('[ldap_directory ...]')`.
-- **Styling:** CSS custom properties (`--ldap-primary-color`, `--ldap-card-bg`, `--ldap-columns`, `--ldap-gap`, `--ldap-card-radius`, `--ldap-text-color`) enable theme integration without overriding selectors.
+- **Pagination & search:** Entirely client-side. All users are fetched at once from LDAP; JS handles filtering and paging.
+- **User sorting:** Results sorted alphabetically by name via `usort()` after retrieval.
+- **Styling:** CSS custom properties on the wrapper element enable theme integration without selector overrides.
 
-## Coding Standards
+## Key Hooks
 
-Follow **WordPress Coding Standards (WPCS)**:
+| Hook | Handler | Notes |
+|---|---|---|
+| `plugins_loaded` | `ldap_ed_init()` | Bootstrap |
+| `admin_menu` | `LDAP_ED_Admin::add_menu()` | Settings sub-menu under "Settings" |
+| `admin_init` | `LDAP_ED_Admin::register_settings()` | Settings API registration |
+| `admin_enqueue_scripts` | `LDAP_ED_Admin::enqueue_assets()` | Conditional: only on `settings_page_ldap-employee-directory` |
+| `wp_enqueue_scripts` | `LDAP_ED_Shortcode::enqueue_assets()` | Public CSS/JS, enqueued on all pages |
+| `wp_ajax_ldap_ed_test_connection` | `LDAP_ED_Ajax::test_connection()` | Admin-only AJAX |
+| `wp_ajax_ldap_ed_clear_cache` | `LDAP_ED_Ajax::clear_cache()` | Admin-only AJAX |
+| `elementor/widgets/register` | `ldap_ed_register_elementor_widget()` | Only when Elementor active |
+| `init` (priority 20) | `ldap_ed_register_bb_module()` | Only when FLBuilder class exists |
 
-- Escape all output: `esc_html()`, `esc_attr()`, `esc_url()`, `wp_kses_*`.
-- Sanitize all input: `sanitize_text_field()`, `absint()`, `esc_url_raw()`, `wp_strip_all_tags()`.
-- Use `WP_Error` for error returns from `LDAP_ED_Connector` methods.
-- Nonces on every AJAX action (`check_ajax_referer`) and capability checks (`current_user_can('manage_options')`).
-- Prefix all functions, classes, constants, option names with `ldap_ed_` / `LDAP_ED_`.
-- Silence LDAP PHP functions (`@ldap_*`) — they trigger warnings on failure; use `ldap_error()` to capture the message.
-- Add `/* translators: ... */` comments before every `sprintf`+`__()` call.
+## Enqueue Handles
 
-## Key Settings (stored in `ldap_ed_settings` option)
-
-| Key | Type | Default | Description |
+| Handle | Type | Dependencies | Localization Object |
 |---|---|---|---|
-| `server` | string | `ldaps://` | LDAP server URL |
-| `port` | int | `636` | LDAP port |
-| `bind_dn` | string | `''` | Service account DN |
-| `bind_pass` | string | `''` | Bind password (never echoed back) |
-| `base_ou` | string | `''` | Base OU for search |
-| `verify_ssl` | `'0'`/`'1'` | `'1'` | SSL cert verification |
-| `ca_cert` | string | `''` | Path to CA .pem file |
-| `fields` | array | `['name','email','title','department']` | Fields to display |
-| `per_page` | int | `20` | Items per page |
-| `enable_search` | `'0'`/`'1'` | `'1'` | Show search bar |
-| `custom_css` | string | `''` | Custom CSS injected inline |
-| `cache_ttl` | int | `60` | Cache TTL in minutes |
+| `ldap-ed-admin` | CSS + JS | JS depends on `jquery` | `ldapEdAdmin` → `{ajaxUrl, nonce, i18n:{testing, clearing, cacheCleared}}` |
+| `ldap-ed-public` | CSS + JS | None | — |
+
+Custom CSS from the `custom_css` setting is injected via `wp_add_inline_style('ldap-ed-public', ...)`.
+
+## Class API Reference
+
+**`LDAP_ED_Connector`**
+```php
+public function __construct( array $settings = array() )
+public function connect(): true|WP_Error
+public function bind(): true|WP_Error
+public function get_users(): array|WP_Error   // returns sorted array of user arrays
+public function test_connection(): array       // { success: bool, message: string, count?: int }
+private function get_entry_value( array $entry, string $attribute ): string|null
+private function disconnect(): void
+```
+
+**`LDAP_ED_Cache`**
+```php
+public function __construct( string $key = LDAP_ED_CACHE_KEY, int $ttl = 3600 )
+public function get(): mixed|false
+public function set( $data ): void
+public function flush(): void
+public function has(): bool
+```
+
+**`LDAP_ED_Admin`**
+```php
+public function add_menu(): void
+public function register_settings(): void
+public function sanitize_settings( $input ): array   // also flushes cache, preserves blank passwords
+public function enqueue_assets( $hook ): void
+public function render_settings_page(): void
+public function render_field_*(): void               // one method per settings field
+private function get_option( $key, $default = '' ): mixed
+```
+
+**`LDAP_ED_Ajax`**
+```php
+public function test_connection(): void   // wp_send_json_success/error
+public function clear_cache(): void       // wp_send_json_success/error
+```
+
+**`LDAP_ED_Shortcode`**
+```php
+public function enqueue_assets(): void
+public function render( $atts ): string
+private function get_users( array $settings ): array|WP_Error
+```
+
+## LDAP Connector Details
+
+**Search filter:** `(&(objectClass=person)(mail=*))` — requires both person class and email attribute.
+
+**Attributes fetched:** `displayname`, `cn` (fallback for name), `mail`, `title`, `department`.
+
+**LDAP options set on every connection:**
+- `LDAP_OPT_PROTOCOL_VERSION` = 3
+- `LDAP_OPT_REFERRALS` = 0
+- `LDAP_OPT_NETWORK_TIMEOUT` = 10 seconds
+
+**SSL/TLS handling:**
+- `verify_ssl='0'` → sets `LDAPTLS_REQCERT=never` env var + `LDAP_OPT_X_TLS_REQUIRE_CERT = LDAP_OPT_X_TLS_NEVER`
+- `ca_cert` path provided and file exists → sets `LDAP_OPT_X_TLS_CACERTFILE`
+- All `@ldap_*` functions are silenced; errors captured via `ldap_error()`
+
+## Key Settings (stored in `ldap_ed_settings`)
+
+Settings are split into three sections: `ldap_ed_section_connection`, `ldap_ed_section_display`, `ldap_ed_section_cache`.
+
+| Key | Section | Type | Default | Sanitization |
+|---|---|---|---|---|
+| `server` | connection | string | `ldaps://` | `esc_url_raw()` |
+| `port` | connection | int | `636` | `absint()` |
+| `bind_dn` | connection | string | `''` | `sanitize_text_field()` |
+| `bind_pass` | connection | string | `''` | Raw (never echoed; blank = keep existing) |
+| `base_ou` | connection | string | `''` | `sanitize_text_field()` |
+| `verify_ssl` | connection | `'0'`/`'1'` | `'1'` | Binary |
+| `ca_cert` | connection | string | `''` | `sanitize_text_field()` |
+| `fields` | display | array | `['name','email','title','department']` | Intersect with allowed list |
+| `per_page` | display | int | `20` | `absint()` |
+| `enable_search` | display | `'0'`/`'1'` | `'1'` | Binary |
+| `custom_css` | display | string | `''` | `wp_strip_all_tags()` |
+| `cache_ttl` | cache | int | `60` | `absint()` (minutes) |
+
+**Allowed field values:** `name`, `email`, `title`, `department`. Any other value is silently discarded.
 
 ## Shortcode
 
@@ -83,17 +162,79 @@ Follow **WordPress Coding Standards (WPCS)**:
 [ldap_directory fields="name,title" per_page="10" search="false"]
 ```
 
-Attributes override the admin panel defaults. Allowed fields: `name`, `email`, `title`, `department`.
+Attributes override admin defaults. Shortcode attributes: `fields` (comma-separated), `per_page` (int), `search` (`"true"`/`"false"`).
 
-## AJAX Actions (admin-only, nonce: `ldap_ed_admin_nonce`)
+## AJAX Actions (nonce: `ldap_ed_admin_nonce`, capability: `manage_options`)
 
-- `ldap_ed_test_connection` — calls `LDAP_ED_Connector::test_connection()`
-- `ldap_ed_clear_cache` — calls `LDAP_ED_Cache::flush()`
+| Action | Handler | Response |
+|---|---|---|
+| `ldap_ed_test_connection` | `LDAP_ED_Ajax::test_connection()` | JSON `{success, data:{message, count?}}` |
+| `ldap_ed_clear_cache` | `LDAP_ED_Ajax::clear_cache()` | JSON `{success, data:{message}}` |
+
+## Frontend Template
+
+**File:** `public/views/directory.php` — variables available: `$users`, `$fields`, `$per_page`, `$enable_search`.
+
+**HTML structure:**
+```
+.ldap-directory-wrap[data-per-page][data-total]
+  .ldap-search-wrap > #ldap-search-input          (conditional)
+  .ldap-directory-grid[aria-live="polite"]
+    article.ldap-employee-card[data-name][data-email][data-title][data-department]
+      h3.ldap-name | p.ldap-title | p.ldap-department | a.ldap-email
+  p.ldap-no-results.ldap-no-results--search       (shown by JS when search yields nothing)
+  nav.ldap-pagination
+    button.ldap-prev | span.ldap-page-info | button.ldap-next
+```
+
+**CSS custom properties** (set on the wrapper or via page builder controls):
+
+| Property | Default | Set by |
+|---|---|---|
+| `--ldap-primary-color` | `#0073aa` | All contexts |
+| `--ldap-card-bg` | `#ffffff` | All contexts |
+| `--ldap-text-color` | `#3c434a` | All contexts |
+| `--ldap-columns` | `3` | Shortcode attr / Elementor / BB |
+| `--ldap-gap` | `20px` | Elementor / BB |
+| `--ldap-card-radius` | `6px` | Elementor / BB |
+| `--ldap-font-size` | — | BB module only |
+
+## Page Builder Integrations
+
+**Elementor widget** (`LDAP_ED_Elementor_Widget extends \Elementor\Widget_Base`):
+- Name: `ldap_employee_directory`, icon: `eicon-person`, category: `general`
+- Content controls: `fields` (multi-select2), `per_page` (number), `enable_search` (switcher), `columns` (select 1–4)
+- Style controls: `primary_color`, `card_bg`, `text_color`, `card_typography`, `card_padding`, `card_border_radius`, `grid_gap`
+- Columns injected as inline CSS variable `--ldap-columns` on the widget wrapper class
+- `content_template()` returns a "preview on frontend" notice (server-side render only)
+- BB module has `partial_refresh: true` for live preview in the BB editor
+
+**Beaver Builder module** (`LDAP_ED_BB_Module extends FLBuilderModule`):
+- Fields tab: `fields_to_show`, `per_page`, `enable_search`, `columns`
+- Style tab: colors, `font_size`, `gap`, `border_radius`
+- Advanced tab: `custom_css` (code field, CSS mode) — sanitized via `wp_strip_all_tags()` in template
+- CSS variables scoped per node: `.fl-node-{uid}` selector in inline `<style>` block
+
+## Coding Standards
+
+Follow **WordPress Coding Standards (WPCS)**:
+
+- Escape all output: `esc_html()`, `esc_attr()`, `esc_url()`, `wp_kses_*`, `esc_textarea()`.
+- Sanitize all input: `sanitize_text_field()`, `absint()`, `esc_url_raw()`, `wp_strip_all_tags()`.
+- Use `WP_Error` for all error returns from `LDAP_ED_Connector` — never throw exceptions.
+- Nonces on every AJAX action (`check_ajax_referer`) and capability checks (`current_user_can('manage_options')`).
+- Prefix all functions, classes, constants, option names with `ldap_ed_` / `LDAP_ED_`.
+- Silence LDAP PHP functions (`@ldap_*`) — they trigger warnings on failure; capture errors with `ldap_error()`.
+- Add `/* translators: ... */` comments before every `sprintf`+`__()` call.
+- Never echo the bind password back to the admin form. Blank submission = keep the existing saved value.
+- Binary settings (`verify_ssl`, `enable_search`) use string `'1'`/`'0'`, not PHP booleans, for WP options consistency.
 
 ## Adding a New Feature Checklist
 
 1. Add the class to `includes/` and register it in `ldap_ed_autoload()`.
 2. Instantiate it inside `ldap_ed_init()` if needed.
-3. Add new settings fields via `LDAP_ED_Admin::register_settings()` + a `render_field_*` method + sanitization in `sanitize_settings()`.
+3. Add new settings fields via `LDAP_ED_Admin::register_settings()` + a `render_field_*` method + sanitization in `sanitize_settings()`. Assign to the appropriate section (`connection`, `display`, or `cache`).
 4. Escape output, sanitize input, add nonce/capability checks on any new AJAX handler.
-5. Update `readme.txt` changelog and bump `LDAP_ED_VERSION` / plugin header version consistently.
+5. Update `readme.txt` changelog and bump `LDAP_ED_VERSION` in the plugin header and constant consistently.
+6. If adding a new LDAP attribute, add it to the `$attributes` array in `LDAP_ED_Connector::get_users()` and map it in `get_entry_value()`.
+7. If adding a new displayable field, also add it to the allowed-fields list in `sanitize_settings()` and to the Elementor/BB controls.
