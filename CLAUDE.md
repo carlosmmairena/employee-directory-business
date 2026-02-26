@@ -57,7 +57,7 @@ readme.txt                           # WordPress.org readme
 | `admin_menu` | `LDAP_ED_Admin::add_menu()` | Settings sub-menu under "Settings" |
 | `admin_init` | `LDAP_ED_Admin::register_settings()` | Settings API registration |
 | `admin_enqueue_scripts` | `LDAP_ED_Admin::enqueue_assets()` | Conditional: only on `settings_page_ldap-employee-directory` |
-| `wp_enqueue_scripts` | `LDAP_ED_Shortcode::enqueue_assets()` | Public CSS/JS, enqueued on all pages |
+| `wp_enqueue_scripts` | `LDAP_ED_Shortcode::register_assets()` | Registers public CSS/JS; enqueues early when shortcode is in `post_content` |
 | `wp_ajax_ldap_ed_test_connection` | `LDAP_ED_Ajax::test_connection()` | Admin-only AJAX |
 | `wp_ajax_ldap_ed_clear_cache` | `LDAP_ED_Ajax::clear_cache()` | Admin-only AJAX |
 | `elementor/widgets/register` | `ldap_ed_register_elementor_widget()` | Only when Elementor active |
@@ -113,8 +113,9 @@ public function clear_cache(): void       // wp_send_json_success/error
 
 **`LDAP_ED_Shortcode`**
 ```php
-public function enqueue_assets(): void
-public function render( $atts ): string
+public function register_assets(): void             // registers CSS/JS; enqueues early if shortcode in post_content
+public function render( $atts ): string             // enqueues assets as fallback for page builders
+private function enqueue_assets(): void             // enqueues registered CSS/JS + injects custom CSS inline
 private function get_users( array $settings ): array|WP_Error
 ```
 
@@ -228,6 +229,9 @@ Follow **WordPress Coding Standards (WPCS)**:
 - Add `/* translators: ... */` comments before every `sprintf`+`__()` call.
 - Never echo the bind password back to the admin form. Blank submission = keep the existing saved value.
 - Binary settings (`verify_ssl`, `enable_search`) use string `'1'`/`'0'`, not PHP booleans, for WP options consistency.
+- Use `printf()`/`sprintf()` for all HTML output in `render_field_*` methods — no `echo` with string concatenation.
+- Pass `'label_for' => 'ldap_ed_{id}'` in the `$args` array of `add_settings_field()` for all text, number, and textarea fields so the Settings API links the `<th>` label to the input. Skip `label_for` for checkboxes (inline label) and multi-checkbox groups.
+- In `admin.js`, capture the original button label before disabling it and restore it in `.always()` — do not use hardcoded label strings.
 
 ## Adding a New Feature Checklist
 
