@@ -206,11 +206,21 @@ class LDAP_ED_Elementor_Widget extends \Elementor\Widget_Base {
 		$search   = ( 'true' === $settings['enable_search'] ) ? 'true' : 'false';
 		$per_page = absint( $settings['per_page'] ?? 20 );
 
-		// Inject column variable inline.
-		echo '<style>.elementor-element-' . esc_attr( $this->get_id() ) . ' .ldap-directory-wrap{--ldap-columns:' . $columns . '}</style>';
+		// Inject column variable scoped to this widget instance.
+		printf(
+			'<style>.elementor-element-%1$s .ldap-directory-wrap{--ldap-columns:%2$d}</style>',
+			esc_attr( $this->get_id() ),
+			$columns
+		);
 
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo do_shortcode(
-			'[ldap_directory search="' . esc_attr( $search ) . '" per_page="' . esc_attr( $per_page ) . '" fields="' . esc_attr( $fields ) . '"]'
+			sprintf(
+				'[ldap_directory search="%1$s" per_page="%2$d" fields="%3$s"]',
+				esc_attr( $search ),
+				$per_page,
+				esc_attr( $fields )
+			)
 		);
 	}
 

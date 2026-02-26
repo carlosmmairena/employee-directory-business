@@ -13,19 +13,22 @@ class LDAP_ED_Shortcode {
 
 	public function __construct() {
 		add_shortcode( 'ldap_directory', array( $this, 'render' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ) );
 	}
 
-	/** Enqueue front-end CSS and JS. */
-	public function enqueue_assets() {
-		wp_enqueue_style(
+	/**
+	 * Register front-end CSS and JS, and eagerly enqueue when the shortcode is
+	 * present in the current singular post's content.
+	 */
+	public function register_assets() {
+		wp_register_style(
 			'ldap-ed-public',
 			LDAP_ED_URL . 'public/css/directory.css',
 			array(),
 			LDAP_ED_VERSION
 		);
 
-		wp_enqueue_script(
+		wp_register_script(
 			'ldap-ed-public',
 			LDAP_ED_URL . 'public/js/directory.js',
 			array(),
@@ -33,7 +36,22 @@ class LDAP_ED_Shortcode {
 			true
 		);
 
-		// Inject custom CSS from admin settings.
+		// Enqueue early (in <head>) when the shortcode is directly in the post content.
+		// Page builder integrations fall back to the enqueue inside render().
+		global $post;
+		if ( is_singular() && $post instanceof WP_Post && has_shortcode( $post->post_content, 'ldap_directory' ) ) {
+			$this->enqueue_assets();
+		}
+	}
+
+	/**
+	 * Enqueue the registered assets and inject any custom CSS.
+	 * Safe to call multiple times — WordPress ignores duplicate enqueues.
+	 */
+	private function enqueue_assets() {
+		wp_enqueue_style( 'ldap-ed-public' );
+		wp_enqueue_script( 'ldap-ed-public' );
+
 		$settings   = get_option( LDAP_ED_OPTION_KEY, array() );
 		$custom_css = $settings['custom_css'] ?? '';
 		if ( ! empty( $custom_css ) ) {
@@ -48,6 +66,10 @@ class LDAP_ED_Shortcode {
 	 * @return string HTML output.
 	 */
 	public function render( $atts ) {
+		// Enqueue assets here as a fallback for page builders (Elementor, Beaver Builder)
+		// that do not store shortcodes in post_content and therefore bypass register_assets().
+		$this->enqueue_assets();
+
 		$settings = get_option( LDAP_ED_OPTION_KEY, array() );
 
 		$atts = shortcode_atts(

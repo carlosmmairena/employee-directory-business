@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <div class="wrap ldap-ed-admin-wrap">
-	<h1><?php esc_html_e( 'LDAP Employee Directory — Settings', 'ldap-employee-directory' ); ?></h1>
+	<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 
 	<?php settings_errors(); ?>
 

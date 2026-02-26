@@ -8,8 +8,9 @@
 	$( function () {
 		// ── Test Connection ─────────────────────────────────────────────────
 		$( '#ldap-ed-test-btn' ).on( 'click', function () {
-			const $btn    = $( this );
-			const $result = $( '#ldap-ed-test-result' );
+			const $btn      = $( this );
+			const $result   = $( '#ldap-ed-test-result' );
+			const labelOrig = $btn.text();
 
 			$btn.prop( 'disabled', true ).text( ldapEdAdmin.i18n.testing );
 			$result.removeClass( 'is-success is-error' ).hide();
@@ -29,14 +30,15 @@
 				$result.addClass( 'is-error' ).text( 'HTTP ' + xhr.status + ': ' + xhr.statusText ).show();
 			} )
 			.always( function () {
-				$btn.prop( 'disabled', false ).text( 'Test Connection' );
+				$btn.prop( 'disabled', false ).text( labelOrig );
 			} );
 		} );
 
 		// ── Clear Cache ─────────────────────────────────────────────────────
 		$( '#ldap-ed-clear-cache-btn' ).on( 'click', function () {
-			const $btn    = $( this );
-			const $result = $( '#ldap-ed-cache-result' );
+			const $btn      = $( this );
+			const $result   = $( '#ldap-ed-cache-result' );
+			const labelOrig = $btn.text();
 
 			$btn.prop( 'disabled', true ).text( ldapEdAdmin.i18n.clearing );
 			$result.removeClass( 'is-success is-error' ).hide();
@@ -56,7 +58,7 @@
 				$result.addClass( 'is-error' ).text( 'HTTP ' + xhr.status + ': ' + xhr.statusText ).show();
 			} )
 			.always( function () {
-				$btn.prop( 'disabled', false ).text( ldapEdAdmin.i18n.cacheCleared );
+				$btn.prop( 'disabled', false ).text( labelOrig );
 			} );
 		} );
 	} );
