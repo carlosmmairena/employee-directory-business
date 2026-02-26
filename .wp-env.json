@@ -1,0 +1,5 @@
+{
+	"lifecycleScripts": {
+		"afterStart": ".github/scripts/install-php-ldap.sh"
+	}
+}
