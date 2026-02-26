@@ -4,7 +4,7 @@ Tags:              ldap, ldaps, directory, employees, staff, elementor, beaver-b
 Requires at least: 5.8
 Tested up to:      6.7
 Requires PHP:      7.4
-Stable tag:        1.0.0
+Stable tag:        1.0.1
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,6 +83,10 @@ By default 60 minutes. Change the TTL under **Settings → LDAP Directory → Ca
 4. Beaver Builder module tabs
 
 == Changelog ==
+
+= 1.0.1 =
+* Fix: LDAP server URL no longer lost on save — replaced `esc_url_raw()` (which strips `ldap://`/`ldaps://` schemes) with a dedicated sanitizer that validates the scheme and shows an admin error on invalid input.
+* Fix: Added runtime admin notice when the PHP LDAP extension is missing, covering cases where the extension is disabled after activation or the plugin is activated via WP-CLI/DB without going through the activation hook.
 
 = 1.0.0 =
 * Initial release.

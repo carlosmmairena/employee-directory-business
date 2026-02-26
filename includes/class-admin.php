@@ -15,6 +15,23 @@ class LDAP_ED_Admin {
 		add_action( 'admin_menu',            array( $this, 'add_menu' ) );
 		add_action( 'admin_init',            array( $this, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action( 'admin_notices',         array( $this, 'maybe_show_ldap_extension_notice' ) );
+	}
+
+	/**
+	 * Show an admin notice if the PHP LDAP extension is not loaded at runtime.
+	 */
+	public function maybe_show_ldap_extension_notice() {
+		if ( extension_loaded( 'ldap' ) ) {
+			return;
+		}
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		printf(
+			'<div class="notice notice-error"><p>%s</p></div>',
+			esc_html__( 'LDAP Employee Directory requires the PHP LDAP extension, which is not currently enabled on this server. The directory will not function until the extension is loaded.', 'ldap-employee-directory' )
+		);
 	}
 
 	/** Add the settings sub-menu under "Settings". */
@@ -138,9 +155,10 @@ class LDAP_ED_Admin {
 
 	/** Sanitize and validate settings before saving. */
 	public function sanitize_settings( $input ) {
-		$clean = array();
+		$clean    = array();
+		$existing = get_option( LDAP_ED_OPTION_KEY, array() );
 
-		$clean['server']        = esc_url_raw( trim( $input['server'] ?? '' ) );
+		$clean['server']        = $this->sanitize_ldap_server( $input['server'] ?? '', $existing['server'] ?? '' );
 		$clean['port']          = absint( $input['port'] ?? 636 );
 		$clean['bind_dn']       = sanitize_text_field( $input['bind_dn'] ?? '' );
 		$clean['base_ou']       = sanitize_text_field( $input['base_ou'] ?? '' );
@@ -163,7 +181,6 @@ class LDAP_ED_Admin {
 		}
 
 		// Only update password if a new one was supplied.
-		$existing           = get_option( LDAP_ED_OPTION_KEY, array() );
 		$clean['bind_pass'] = ! empty( $input['bind_pass'] )
 			? $input['bind_pass']
 			: ( $existing['bind_pass'] ?? '' );
@@ -172,6 +189,40 @@ class LDAP_ED_Admin {
 		( new LDAP_ED_Cache() )->flush();
 
 		return $clean;
+	}
+
+	/**
+	 * Sanitize the LDAP server URL, allowing only ldap:// and ldaps:// schemes.
+	 *
+	 * @param string $raw      Raw submitted value.
+	 * @param string $previous Previously saved value (fallback on invalid scheme).
+	 * @return string
+	 */
+	private function sanitize_ldap_server( $raw, $previous ) {
+		$value = trim( $raw );
+
+		if ( '' === $value ) {
+			return '';
+		}
+
+		if ( preg_match( '#^(ldaps?)://#i', $value, $matches ) ) {
+			$scheme    = strtolower( $matches[1] );
+			$remainder = substr( $value, strlen( $matches[0] ) );
+			return $scheme . '://' . sanitize_text_field( $remainder );
+		}
+
+		add_settings_error(
+			LDAP_ED_OPTION_KEY,
+			'ldap_ed_invalid_server_scheme',
+			/* translators: %s: the submitted server value */
+			sprintf(
+				__( 'Invalid LDAP server URL "%s". The URL must begin with ldap:// or ldaps://. The previous value has been kept.', 'ldap-employee-directory' ),
+				esc_html( $value )
+			),
+			'error'
+		);
+
+		return $previous;
 	}
 
 	/** Enqueue admin CSS and JS only on the plugin settings page. */
