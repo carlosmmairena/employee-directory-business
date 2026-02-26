@@ -91,6 +91,15 @@ class LDAP_ED_Admin {
 			'ldap_ed_section_connection'
 		);
 
+		// Checkbox — no label_for.
+		add_settings_field(
+			'ldap_ed_exclude_disabled',
+			__( 'Exclude Disabled Accounts', 'ldap-employee-directory' ),
+			array( $this, 'render_field_exclude_disabled' ),
+			'ldap-employee-directory',
+			'ldap_ed_section_connection'
+		);
+
 		// --- Display section ---
 		add_settings_section(
 			'ldap_ed_section_display',
@@ -162,15 +171,16 @@ class LDAP_ED_Admin {
 		$clean['port']          = absint( $input['port'] ?? 636 );
 		$clean['bind_dn']       = sanitize_text_field( $input['bind_dn'] ?? '' );
 		$clean['base_ou']       = sanitize_text_field( $input['base_ou'] ?? '' );
-		$clean['verify_ssl']    = isset( $input['verify_ssl'] ) ? '1' : '0';
-		$clean['ca_cert']       = sanitize_text_field( $input['ca_cert'] ?? '' );
-		$clean['per_page']      = absint( $input['per_page'] ?? 20 );
+		$clean['verify_ssl']        = isset( $input['verify_ssl'] ) ? '1' : '0';
+		$clean['ca_cert']           = sanitize_text_field( $input['ca_cert'] ?? '' );
+		$clean['exclude_disabled']  = isset( $input['exclude_disabled'] ) ? '1' : '0';
+		$clean['per_page']          = absint( $input['per_page'] ?? 20 );
 		$clean['enable_search'] = isset( $input['enable_search'] ) ? '1' : '0';
 		$clean['custom_css']    = wp_strip_all_tags( $input['custom_css'] ?? '' );
 		$clean['cache_ttl']     = absint( $input['cache_ttl'] ?? 60 );
 
 		// Allowed field keys.
-		$allowed_fields  = array( 'name', 'email', 'title', 'department' );
+		$allowed_fields  = array( 'name', 'email', 'title', 'department', 'phone' );
 		$clean['fields'] = array();
 		if ( ! empty( $input['fields'] ) && is_array( $input['fields'] ) ) {
 			foreach ( $input['fields'] as $field ) {
@@ -185,8 +195,9 @@ class LDAP_ED_Admin {
 			? $input['bind_pass']
 			: ( $existing['bind_pass'] ?? '' );
 
-		// Invalidate cache when settings change.
-		( new LDAP_ED_Cache() )->flush();
+		// Settings changed — purge both TTL transient and stale option since the
+		// LDAP server or connection parameters may have changed.
+		( new LDAP_ED_Cache() )->purge();
 
 		return $clean;
 	}
@@ -338,6 +349,16 @@ class LDAP_ED_Admin {
 		);
 	}
 
+	public function render_field_exclude_disabled() {
+		printf(
+			'<label><input type="checkbox" name="%1$s[exclude_disabled]" value="1" %2$s> %3$s</label><p class="description">%4$s</p>',
+			esc_attr( LDAP_ED_OPTION_KEY ),
+			checked( '1', $this->get_option( 'exclude_disabled', '0' ), false ),
+			esc_html__( 'Exclude disabled accounts from the directory', 'ldap-employee-directory' ),
+			esc_html__( 'Uses the Active Directory userAccountControl attribute. Leave unchecked for OpenLDAP and other servers.', 'ldap-employee-directory' )
+		);
+	}
+
 	/** @param array $args Settings field args passed by the Settings API. */
 	public function render_field_ca_cert( $args = array() ) {
 		printf(
@@ -356,6 +377,7 @@ class LDAP_ED_Admin {
 			'email'      => __( 'Email', 'ldap-employee-directory' ),
 			'title'      => __( 'Job Title', 'ldap-employee-directory' ),
 			'department' => __( 'Department', 'ldap-employee-directory' ),
+			'phone'      => __( 'Phone', 'ldap-employee-directory' ),
 		);
 		foreach ( $items as $key => $label ) {
 			printf(

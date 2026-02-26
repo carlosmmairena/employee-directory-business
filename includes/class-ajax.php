@@ -43,7 +43,7 @@ class LDAP_ED_Ajax {
 			wp_send_json_error( array( 'message' => __( 'Unauthorized.', 'ldap-employee-directory' ) ), 403 );
 		}
 
-		( new LDAP_ED_Cache() )->flush();
+		( new LDAP_ED_Cache() )->purge();
 
 		wp_send_json_success( array( 'message' => __( 'Cache cleared successfully.', 'ldap-employee-directory' ) ) );
 	}

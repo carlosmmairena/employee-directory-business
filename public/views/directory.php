@@ -3,7 +3,7 @@
  * Public directory template.
  *
  * Variables available from class-shortcode.php:
- *   $users         — array of user arrays (name, email, title, department)
+ *   $users         — array of user arrays (name, email, title, department, phone)
  *   $fields        — array of field keys to display
  *   $per_page      — int, items per page
  *   $enable_search — bool, show search input
@@ -71,6 +71,7 @@ $ldap_avatar_palette = array(
 				data-email="<?php echo esc_attr( strtolower( $user['email'] ) ); ?>"
 				data-title="<?php echo esc_attr( strtolower( $user['title'] ) ); ?>"
 				data-department="<?php echo esc_attr( strtolower( $user['department'] ) ); ?>"
+				data-phone="<?php echo esc_attr( strtolower( $user['phone'] ?? '' ) ); ?>"
 			>
 				<div
 					class="ldap-card-avatar"
@@ -95,6 +96,12 @@ $ldap_avatar_palette = array(
 				<?php if ( in_array( 'email', $fields, true ) && ! empty( $user['email'] ) ) : ?>
 				<a class="ldap-email" href="mailto:<?php echo esc_attr( $user['email'] ); ?>">
 					<?php echo esc_html( $user['email'] ); ?>
+				</a>
+				<?php endif; ?>
+
+				<?php if ( in_array( 'phone', $fields, true ) && ! empty( $user['phone'] ) ) : ?>
+				<a class="ldap-phone" href="tel:<?php echo esc_attr( $user['phone'] ); ?>">
+					<?php echo esc_html( $user['phone'] ); ?>
 				</a>
 				<?php endif; ?>
 			</article>

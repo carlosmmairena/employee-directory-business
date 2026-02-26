@@ -4,7 +4,7 @@ Tags:              ldap, ldaps, directory, employees, staff, elementor, beaver-b
 Requires at least: 5.8
 Tested up to:      6.7
 Requires PHP:      7.4
-Stable tag:        1.0.1
+Stable tag:        1.0.2
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,6 +83,11 @@ By default 60 minutes. Change the TTL under **Settings → LDAP Directory → Ca
 4. Beaver Builder module tabs
 
 == Changelog ==
+
+= 1.0.2 =
+* Feat: Added `telephoneNumber` field — read from LDAP, displayed on cards as a clickable `tel:` link, included in client-side search, and available in admin panel, Elementor and Beaver Builder controls.
+* Feat: New "Exclude Disabled Accounts" setting (connection section) — filters out disabled Active Directory accounts using the `userAccountControl` bit flag. Leave unchecked for OpenLDAP/other servers.
+* Feat: Resilient cache — when the LDAP server is unreachable after cache expiry, the last successfully fetched data (stale copy) is served silently to visitors. Only a manual "Clear Cache" action removes the stale copy entirely.
 
 = 1.0.1 =
 * Fix: LDAP server URL no longer lost on save — replaced `esc_url_raw()` (which strips `ldap://`/`ldaps://` schemes) with a dedicated sanitizer that validates the scheme and shows an admin error on invalid input.

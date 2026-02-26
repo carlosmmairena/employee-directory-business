@@ -14,8 +14,9 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 // Remove settings.
 delete_option( 'ldap_ed_settings' );
 
-// Remove the users cache transient.
+// Remove the users cache transient and stale fallback option.
 delete_transient( 'ldap_ed_users' );
+delete_option( 'ldap_ed_users_stale' );
 
 // Multisite: remove per-site options.
 if ( is_multisite() ) {
@@ -24,6 +25,7 @@ if ( is_multisite() ) {
 		switch_to_blog( $site_id );
 		delete_option( 'ldap_ed_settings' );
 		delete_transient( 'ldap_ed_users' );
+		delete_option( 'ldap_ed_users_stale' );
 		restore_current_blog();
 	}
 }

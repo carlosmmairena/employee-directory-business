@@ -24,14 +24,15 @@ class LDAP_ED_Connector {
 	 */
 	public function __construct( array $settings = array() ) {
 		$defaults = array(
-			'server'       => '',
-			'port'         => 636,
-			'bind_dn'      => '',
-			'bind_pass'    => '',
-			'base_ou'      => '',
-			'verify_ssl'   => '1',
-			'ca_cert'      => '',
-			'fields'       => array( 'name', 'email', 'title', 'department' ),
+			'server'            => '',
+			'port'              => 636,
+			'bind_dn'           => '',
+			'bind_pass'         => '',
+			'base_ou'           => '',
+			'verify_ssl'        => '1',
+			'ca_cert'           => '',
+			'fields'            => array( 'name', 'email', 'title', 'department' ),
+			'exclude_disabled'  => '0',
 		);
 
 		$this->settings = wp_parse_args( $settings, $defaults );
@@ -119,9 +120,16 @@ class LDAP_ED_Connector {
 			return $bind_result;
 		}
 
-		$base_ou    = sanitize_text_field( $this->settings['base_ou'] );
-		$filter     = '(&(objectClass=person)(mail=*))';
-		$attributes = array( 'cn', 'displayname', 'mail', 'title', 'department' );
+		$base_ou = sanitize_text_field( $this->settings['base_ou'] );
+
+		// Optionally exclude disabled Active Directory accounts (userAccountControl bit 1).
+		if ( '1' === (string) $this->settings['exclude_disabled'] ) {
+			$filter = '(&(objectClass=person)(mail=*)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))';
+		} else {
+			$filter = '(&(objectClass=person)(mail=*))';
+		}
+
+		$attributes = array( 'cn', 'displayname', 'mail', 'title', 'department', 'telephonenumber' );
 
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		$search = @ldap_search( $this->connection, $base_ou, $filter, $attributes );
@@ -147,6 +155,7 @@ class LDAP_ED_Connector {
 				'email'      => $this->get_entry_value( $entry, 'mail' ) ?? '',
 				'title'      => $this->get_entry_value( $entry, 'title' ) ?? '',
 				'department' => $this->get_entry_value( $entry, 'department' ) ?? '',
+				'phone'      => $this->get_entry_value( $entry, 'telephonenumber' ) ?? '',
 			);
 		}
 

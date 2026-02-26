@@ -55,6 +55,7 @@ class LDAP_ED_Elementor_Widget extends \Elementor\Widget_Base {
 					'email'      => __( 'Email', 'ldap-employee-directory' ),
 					'title'      => __( 'Job Title', 'ldap-employee-directory' ),
 					'department' => __( 'Department', 'ldap-employee-directory' ),
+					'phone'      => __( 'Phone', 'ldap-employee-directory' ),
 				),
 				'default' => array( 'name', 'email', 'title', 'department' ),
 			)

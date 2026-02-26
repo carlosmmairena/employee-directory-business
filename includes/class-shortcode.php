@@ -83,7 +83,7 @@ class LDAP_ED_Shortcode {
 		);
 
 		// Resolve field list from the shortcode attribute.
-		$allowed_fields = array( 'name', 'email', 'title', 'department' );
+		$allowed_fields = array( 'name', 'email', 'title', 'department', 'phone' );
 		$fields         = array_intersect(
 			array_map( 'trim', explode( ',', $atts['fields'] ) ),
 			$allowed_fields
@@ -116,15 +116,21 @@ class LDAP_ED_Shortcode {
 		$cache = new LDAP_ED_Cache( LDAP_ED_CACHE_KEY, $ttl );
 		$users = $cache->get();
 
-		if ( false === $users ) {
-			$connector = new LDAP_ED_Connector( $settings );
-			$users     = $connector->get_users();
-
-			if ( ! is_wp_error( $users ) ) {
-				$cache->set( $users );
-			}
+		if ( false !== $users ) {
+			return $users;
 		}
 
+		$connector = new LDAP_ED_Connector( $settings );
+		$users     = $connector->get_users();
+
+		if ( is_wp_error( $users ) ) {
+			// LDAP unreachable — serve stale data if available to avoid showing
+			// an error to visitors while the server is temporarily down.
+			$stale = $cache->get_stale();
+			return ( false !== $stale ) ? $stale : $users;
+		}
+
+		$cache->set( $users );
 		return $users;
 	}
 }

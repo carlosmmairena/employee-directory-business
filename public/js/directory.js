@@ -63,7 +63,8 @@
 				( card.dataset.name       || '' ).includes( query ) ||
 				( card.dataset.email      || '' ).includes( query ) ||
 				( card.dataset.title      || '' ).includes( query ) ||
-				( card.dataset.department || '' ).includes( query )
+				( card.dataset.department || '' ).includes( query ) ||
+				( card.dataset.phone      || '' ).includes( query )
 			);
 		}
 

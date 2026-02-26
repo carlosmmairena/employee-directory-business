@@ -3,7 +3,7 @@
  * Plugin Name: LDAP Employee Directory
  * Plugin URI:  https://wordpress.org/plugins/ldap-employee-directory/
  * Description: Connects to LDAPS to display an employee directory from an OU. Supports Elementor, Beaver Builder and a native shortcode.
- * Version:     1.0.1
+ * Version:     1.0.2
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Author:      Carlos Mairena
@@ -19,12 +19,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants.
-define( 'LDAP_ED_VERSION',     '1.0.1' );
+define( 'LDAP_ED_VERSION',     '1.0.2' );
 define( 'LDAP_ED_FILE',        __FILE__ );
 define( 'LDAP_ED_DIR',         plugin_dir_path( __FILE__ ) );
 define( 'LDAP_ED_URL',         plugin_dir_url( __FILE__ ) );
 define( 'LDAP_ED_OPTION_KEY',  'ldap_ed_settings' );
 define( 'LDAP_ED_CACHE_KEY',   'ldap_ed_users' );
+define( 'LDAP_ED_STALE_KEY',   'ldap_ed_users_stale' );
 
 /**
  * Verify that the PHP LDAP extension is available on activation.
