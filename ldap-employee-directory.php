@@ -28,21 +28,6 @@ define( 'LDAP_ED_CACHE_KEY',   'ldap_ed_users' );
 define( 'LDAP_ED_STALE_KEY',   'ldap_ed_users_stale' );
 
 /**
- * Verify that the PHP LDAP extension is available on activation.
- */
-function ldap_ed_activation_check() {
-	if ( ! extension_loaded( 'ldap' ) ) {
-		deactivate_plugins( plugin_basename( __FILE__ ) );
-		wp_die(
-			esc_html__( 'LDAP Employee Directory requires the PHP LDAP extension. Please enable it on your server and try again.', 'employee-directory-business' ),
-			esc_html__( 'Plugin activation error', 'employee-directory-business' ),
-			array( 'back_link' => true )
-		);
-	}
-}
-register_activation_hook( __FILE__, 'ldap_ed_activation_check' );
-
-/**
  * Flush rewrite rules on deactivation (nothing registered currently, kept for future use).
  */
 register_deactivation_hook( __FILE__, 'flush_rewrite_rules' );
