@@ -40,7 +40,7 @@ Connects to an LDAPS server and displays an employee directory from a specific O
 
 == Installation ==
 
-1. Upload the `ldap-employee-directory` folder to `/wp-content/plugins/`.
+1. Upload the `employee-directory-business` folder to `/wp-content/plugins/`.
 2. Activate the plugin through **Plugins → Installed Plugins**.
 3. Go to **Settings → LDAP Directory** and fill in your LDAP connection details.
 4. Click **Test Connection** to verify the settings.

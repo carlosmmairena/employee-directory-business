@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: LDAP Employee Directory
- * Plugin URI:  https://wordpress.org/plugins/ldap-employee-directory/
+ * Plugin URI:  https://wordpress.org/plugins/employee-directory-business/
  * Description: Connects to LDAPS to display an employee directory from an OU. Supports Elementor, Beaver Builder and a native shortcode.
  * Version:     1.0.2
  * Requires at least: 5.8
@@ -10,7 +10,7 @@
  * Author URI:  https://carlosmmairena.com
  * License:     GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: ldap-employee-directory
+ * Text Domain: employee-directory-business
  * Domain Path: /languages
  */
 
@@ -34,8 +34,8 @@ function ldap_ed_activation_check() {
 	if ( ! extension_loaded( 'ldap' ) ) {
 		deactivate_plugins( plugin_basename( __FILE__ ) );
 		wp_die(
-			esc_html__( 'LDAP Employee Directory requires the PHP LDAP extension. Please enable it on your server and try again.', 'ldap-employee-directory' ),
-			esc_html__( 'Plugin activation error', 'ldap-employee-directory' ),
+			esc_html__( 'LDAP Employee Directory requires the PHP LDAP extension. Please enable it on your server and try again.', 'employee-directory-business' ),
+			esc_html__( 'Plugin activation error', 'employee-directory-business' ),
 			array( 'back_link' => true )
 		);
 	}
@@ -74,7 +74,7 @@ spl_autoload_register( 'ldap_ed_autoload' );
  */
 function ldap_ed_init() {
 	// Load text domain.
-	load_plugin_textdomain( 'ldap-employee-directory', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+	load_plugin_textdomain( 'employee-directory-business', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 
 	// Core classes.
 	new LDAP_ED_Admin();

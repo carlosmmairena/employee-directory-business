@@ -31,14 +31,14 @@ $ldap_avatar_palette = array(
 	<?php if ( $enable_search ) : ?>
 	<div class="ldap-search-wrap">
 		<label for="ldap-search-input" class="screen-reader-text">
-			<?php esc_html_e( 'Search employees', 'ldap-employee-directory' ); ?>
+			<?php esc_html_e( 'Search employees', 'employee-directory-business' ); ?>
 		</label>
 		<input
 			type="search"
 			id="ldap-search-input"
 			class="ldap-search"
-			placeholder="<?php esc_attr_e( 'Search employee…', 'ldap-employee-directory' ); ?>"
-			aria-label="<?php esc_attr_e( 'Search employee', 'ldap-employee-directory' ); ?>"
+			placeholder="<?php esc_attr_e( 'Search employee…', 'employee-directory-business' ); ?>"
+			aria-label="<?php esc_attr_e( 'Search employee', 'employee-directory-business' ); ?>"
 		>
 	</div>
 	<?php endif; ?>
@@ -46,7 +46,7 @@ $ldap_avatar_palette = array(
 	<div class="ldap-directory-grid" aria-live="polite">
 
 		<?php if ( empty( $users ) ) : ?>
-			<p class="ldap-no-results"><?php esc_html_e( 'No employees found.', 'ldap-employee-directory' ); ?></p>
+			<p class="ldap-no-results"><?php esc_html_e( 'No employees found.', 'employee-directory-business' ); ?></p>
 		<?php else : ?>
 			<?php foreach ( $users as $user ) :
 				// Compute initials (up to 2 characters) from the display name.
@@ -111,16 +111,16 @@ $ldap_avatar_palette = array(
 	</div><!-- /.ldap-directory-grid -->
 
 	<p class="ldap-no-results ldap-no-results--search" style="display:none" aria-live="polite">
-		<?php esc_html_e( 'No employees match your search.', 'ldap-employee-directory' ); ?>
+		<?php esc_html_e( 'No employees match your search.', 'employee-directory-business' ); ?>
 	</p>
 
-	<nav class="ldap-pagination" aria-label="<?php esc_attr_e( 'Directory pagination', 'ldap-employee-directory' ); ?>">
+	<nav class="ldap-pagination" aria-label="<?php esc_attr_e( 'Directory pagination', 'employee-directory-business' ); ?>">
 		<button type="button" class="ldap-btn ldap-prev" disabled>
-			&laquo; <?php esc_html_e( 'Previous', 'ldap-employee-directory' ); ?>
+			&laquo; <?php esc_html_e( 'Previous', 'employee-directory-business' ); ?>
 		</button>
 		<span class="ldap-page-info"></span>
 		<button type="button" class="ldap-btn ldap-next">
-			<?php esc_html_e( 'Next', 'ldap-employee-directory' ); ?> &raquo;
+			<?php esc_html_e( 'Next', 'employee-directory-business' ); ?> &raquo;
 		</button>
 	</nav>
 

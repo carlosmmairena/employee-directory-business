@@ -20,7 +20,7 @@ FLBuilder::register_module(
 
 		// ── General tab ──────────────────────────────────────────────────────
 		'general' => array(
-			'title'    => __( 'General', 'ldap-employee-directory' ),
+			'title'    => __( 'General', 'employee-directory-business' ),
 			'sections' => array(
 				'general' => array(
 					'title'  => '',
@@ -28,38 +28,38 @@ FLBuilder::register_module(
 
 						'fields_to_show' => array(
 							'type'    => 'select',
-							'label'   => __( 'Fields to Display', 'ldap-employee-directory' ),
+							'label'   => __( 'Fields to Display', 'employee-directory-business' ),
 							'multi-select' => true,
 							'default' => array( 'name', 'email', 'title', 'department' ),
 							'options' => array(
-								'name'       => __( 'Full Name', 'ldap-employee-directory' ),
-								'email'      => __( 'Email', 'ldap-employee-directory' ),
-								'title'      => __( 'Job Title', 'ldap-employee-directory' ),
-								'department' => __( 'Department', 'ldap-employee-directory' ),
-								'phone'      => __( 'Phone', 'ldap-employee-directory' ),
+								'name'       => __( 'Full Name', 'employee-directory-business' ),
+								'email'      => __( 'Email', 'employee-directory-business' ),
+								'title'      => __( 'Job Title', 'employee-directory-business' ),
+								'department' => __( 'Department', 'employee-directory-business' ),
+								'phone'      => __( 'Phone', 'employee-directory-business' ),
 							),
 						),
 
 						'per_page' => array(
 							'type'    => 'unit',
-							'label'   => __( 'Items per Page', 'ldap-employee-directory' ),
+							'label'   => __( 'Items per Page', 'employee-directory-business' ),
 							'default' => '20',
 							'units'   => array( '' ),
 						),
 
 						'enable_search' => array(
 							'type'    => 'select',
-							'label'   => __( 'Enable Search Bar', 'ldap-employee-directory' ),
+							'label'   => __( 'Enable Search Bar', 'employee-directory-business' ),
 							'default' => 'true',
 							'options' => array(
-								'true'  => __( 'Yes', 'ldap-employee-directory' ),
-								'false' => __( 'No', 'ldap-employee-directory' ),
+								'true'  => __( 'Yes', 'employee-directory-business' ),
+								'false' => __( 'No', 'employee-directory-business' ),
 							),
 						),
 
 						'columns' => array(
 							'type'    => 'select',
-							'label'   => __( 'Columns', 'ldap-employee-directory' ),
+							'label'   => __( 'Columns', 'employee-directory-business' ),
 							'default' => '3',
 							'options' => array(
 								'1' => '1',
@@ -76,27 +76,27 @@ FLBuilder::register_module(
 
 		// ── Style tab ────────────────────────────────────────────────────────
 		'style' => array(
-			'title'    => __( 'Style', 'ldap-employee-directory' ),
+			'title'    => __( 'Style', 'employee-directory-business' ),
 			'sections' => array(
 				'colors' => array(
-					'title'  => __( 'Colors', 'ldap-employee-directory' ),
+					'title'  => __( 'Colors', 'employee-directory-business' ),
 					'fields' => array(
 
 						'primary_color' => array(
 							'type'    => 'color',
-							'label'   => __( 'Primary Color', 'ldap-employee-directory' ),
+							'label'   => __( 'Primary Color', 'employee-directory-business' ),
 							'default' => '0073aa',
 						),
 
 						'card_bg_color' => array(
 							'type'    => 'color',
-							'label'   => __( 'Card Background', 'ldap-employee-directory' ),
+							'label'   => __( 'Card Background', 'employee-directory-business' ),
 							'default' => 'ffffff',
 						),
 
 						'text_color' => array(
 							'type'    => 'color',
-							'label'   => __( 'Text Color', 'ldap-employee-directory' ),
+							'label'   => __( 'Text Color', 'employee-directory-business' ),
 							'default' => '3c434a',
 						),
 
@@ -104,11 +104,11 @@ FLBuilder::register_module(
 				),
 
 				'typography' => array(
-					'title'  => __( 'Typography', 'ldap-employee-directory' ),
+					'title'  => __( 'Typography', 'employee-directory-business' ),
 					'fields' => array(
 						'font_size' => array(
 							'type'    => 'unit',
-							'label'   => __( 'Font Size (px)', 'ldap-employee-directory' ),
+							'label'   => __( 'Font Size (px)', 'employee-directory-business' ),
 							'default' => '14',
 							'units'   => array( 'px' ),
 						),
@@ -116,17 +116,17 @@ FLBuilder::register_module(
 				),
 
 				'layout' => array(
-					'title'  => __( 'Layout', 'ldap-employee-directory' ),
+					'title'  => __( 'Layout', 'employee-directory-business' ),
 					'fields' => array(
 						'gap' => array(
 							'type'    => 'unit',
-							'label'   => __( 'Cards Gap (px)', 'ldap-employee-directory' ),
+							'label'   => __( 'Cards Gap (px)', 'employee-directory-business' ),
 							'default' => '20',
 							'units'   => array( 'px' ),
 						),
 						'border_radius' => array(
 							'type'    => 'unit',
-							'label'   => __( 'Border Radius (px)', 'ldap-employee-directory' ),
+							'label'   => __( 'Border Radius (px)', 'employee-directory-business' ),
 							'default' => '6',
 							'units'   => array( 'px' ),
 						),
@@ -137,14 +137,14 @@ FLBuilder::register_module(
 
 		// ── Advanced tab ─────────────────────────────────────────────────────
 		'advanced' => array(
-			'title'    => __( 'Advanced', 'ldap-employee-directory' ),
+			'title'    => __( 'Advanced', 'employee-directory-business' ),
 			'sections' => array(
 				'custom_css_section' => array(
-					'title'  => __( 'Custom CSS', 'ldap-employee-directory' ),
+					'title'  => __( 'Custom CSS', 'employee-directory-business' ),
 					'fields' => array(
 						'custom_css' => array(
 							'type'  => 'code',
-							'label' => __( 'Custom CSS', 'ldap-employee-directory' ),
+							'label' => __( 'Custom CSS', 'employee-directory-business' ),
 							'mode'  => 'css',
 							'rows'  => 10,
 						),
@@ -161,10 +161,10 @@ class LDAP_ED_BB_Module extends FLBuilderModule {
 	public function __construct() {
 		parent::__construct(
 			array(
-				'name'            => __( 'LDAP Employee Directory', 'ldap-employee-directory' ),
-				'description'     => __( 'Displays an employee directory from an LDAP/LDAPS server.', 'ldap-employee-directory' ),
-				'group'           => __( 'General', 'ldap-employee-directory' ),
-				'category'        => __( 'Basic', 'ldap-employee-directory' ),
+				'name'            => __( 'LDAP Employee Directory', 'employee-directory-business' ),
+				'description'     => __( 'Displays an employee directory from an LDAP/LDAPS server.', 'employee-directory-business' ),
+				'group'           => __( 'General', 'employee-directory-business' ),
+				'category'        => __( 'Basic', 'employee-directory-business' ),
 				'dir'             => LDAP_ED_DIR . 'beaver-builder/',
 				'url'             => LDAP_ED_URL . 'beaver-builder/',
 				'icon'            => 'button.svg',

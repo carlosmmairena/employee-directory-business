@@ -21,7 +21,7 @@ class LDAP_ED_Ajax {
 		check_ajax_referer( 'ldap_ed_admin_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Unauthorized.', 'ldap-employee-directory' ) ), 403 );
+			wp_send_json_error( array( 'message' => __( 'Unauthorized.', 'employee-directory-business' ) ), 403 );
 		}
 
 		$settings  = get_option( LDAP_ED_OPTION_KEY, array() );
@@ -40,11 +40,11 @@ class LDAP_ED_Ajax {
 		check_ajax_referer( 'ldap_ed_admin_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Unauthorized.', 'ldap-employee-directory' ) ), 403 );
+			wp_send_json_error( array( 'message' => __( 'Unauthorized.', 'employee-directory-business' ) ), 403 );
 		}
 
 		( new LDAP_ED_Cache() )->purge();
 
-		wp_send_json_success( array( 'message' => __( 'Cache cleared successfully.', 'ldap-employee-directory' ) ) );
+		wp_send_json_success( array( 'message' => __( 'Cache cleared successfully.', 'employee-directory-business' ) ) );
 	}
 }
