@@ -1,5 +1,5 @@
 === LDAP Employee Directory ===
-Contributors:      yourwpusername
+Contributors:      carlosmmairena
 Tags:              ldap, ldaps, directory, employees, staff, elementor, beaver-builder
 Requires at least: 5.8
 Tested up to:      6.7
