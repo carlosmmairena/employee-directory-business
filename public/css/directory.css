@@ -98,7 +98,7 @@
 
 /* ── Card ───────────────────────────────────────────────────────────────── */
 
-.ldap-employee-card {
+.ldap-staff-card {
 	background: var( --ldap-card-bg );
 	border: 1px solid var( --ldap-card-border );
 	border-radius: var( --ldap-card-radius );
@@ -110,7 +110,7 @@
 	transition: box-shadow .18s ease, border-color .18s ease;
 }
 
-.ldap-employee-card:hover {
+.ldap-staff-card:hover {
 	box-shadow: 0 4px 14px rgba( 0, 0, 0, .1 );
 	border-color: #c3c4c7;
 }

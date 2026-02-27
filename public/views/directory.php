@@ -66,7 +66,7 @@ $ldap_avatar_palette = array(
 				$ldap_avatar_bg = $ldap_avatar_palette[ $ldap_color_idx ];
 			?>
 			<article
-				class="ldap-employee-card"
+				class="ldap-staff-card"
 				data-name="<?php echo esc_attr( strtolower( $ldap_ed_user['name'] ) ); ?>"
 				data-email="<?php echo esc_attr( strtolower( $ldap_ed_user['email'] ) ); ?>"
 				data-title="<?php echo esc_attr( strtolower( $ldap_ed_user['title'] ) ); ?>"

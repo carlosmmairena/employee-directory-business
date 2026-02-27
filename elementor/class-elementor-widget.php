@@ -151,7 +151,7 @@ class LDAP_ED_Elementor_Widget extends \Elementor\Widget_Base {
 			array(
 				'name'     => 'card_typography',
 				'label'    => __( 'Typography', 'employee-directory-business' ),
-				'selector' => '{{WRAPPER}} .ldap-employee-card',
+				'selector' => '{{WRAPPER}} .ldap-staff-card',
 			)
 		);
 
@@ -162,7 +162,7 @@ class LDAP_ED_Elementor_Widget extends \Elementor\Widget_Base {
 				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
 				'size_units' => array( 'px', 'em', '%' ),
 				'selectors'  => array(
-					'{{WRAPPER}} .ldap-employee-card' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					'{{WRAPPER}} .ldap-staff-card' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				),
 			)
 		);

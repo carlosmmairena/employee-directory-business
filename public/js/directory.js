@@ -22,7 +22,7 @@
 		if ( ! grid ) return;
 
 		const perPage    = parseInt( wrap.dataset.perPage, 10 ) || 20;
-		let allCards     = Array.from( grid.querySelectorAll( '.ldap-employee-card' ) );
+		let allCards     = Array.from( grid.querySelectorAll( '.ldap-staff-card' ) );
 		let visibleCards = allCards.slice();
 		let currentPage  = 1;
 

@@ -15,7 +15,7 @@ WordPress plugin (GPL v2) that connects a site to an LDAP/LDAPS server and rende
 ## File Structure
 
 ```
-ldap-employee-directory.php              # Main file: constants, autoloader, bootstrap hooks
+ldap-staff-directory.php              # Main file: constants, autoloader, bootstrap hooks
 includes/
   class-ldap-connector.php           # LDAP_ED_Connector  — connect/bind/search/test
   class-cache.php                    # LDAP_ED_Cache      — WP Transients wrapper
@@ -191,7 +191,7 @@ Attributes override admin defaults. Shortcode attributes: `fields` (comma-separa
 .ldap-directory-wrap[data-per-page][data-total]
   .ldap-search-wrap > #ldap-search-input                     (conditional; icon via CSS ::before)
   .ldap-directory-grid[aria-live="polite"]
-    article.ldap-employee-card[data-name][data-email][data-title][data-department][data-phone]
+    article.ldap-staff-card[data-name][data-email][data-title][data-department][data-phone]
       div.ldap-card-avatar[aria-hidden][style="--ldap-avatar-bg:#hex"]   (initials circle)
       h3.ldap-name | p.ldap-title | p.ldap-department > span.ldap-dept-badge | a.ldap-email | a.ldap-phone
   p.ldap-no-results.ldap-no-results--search       (shown by JS when search yields nothing)
@@ -268,6 +268,6 @@ Follow **WordPress Coding Standards (WPCS)**:
 4. Escape output, sanitize input, add nonce/capability checks on any new AJAX handler.
 5. Update `readme.txt` changelog (add entry under `== Changelog ==`) and bump `LDAP_ED_VERSION` in the plugin header and the constant **and** `Stable tag` in `readme.txt` consistently.
 6. If adding a new LDAP attribute, add it to the `$attributes` array in `LDAP_ED_Connector::get_users()`, map it in `get_entry_value()`, and add the key to the user array built in the same method.
-7. If adding a new displayable field, also add it to the allowed-fields list in `sanitize_settings()`, to `$allowed_fields` in `LDAP_ED_Shortcode::render()`, to the Elementor/BB controls, to the `data-*` attributes on `article.ldap-employee-card` in the template, and to the `matchesQuery()` function in `directory.js`.
+7. If adding a new displayable field, also add it to the allowed-fields list in `sanitize_settings()`, to `$allowed_fields` in `LDAP_ED_Shortcode::render()`, to the Elementor/BB controls, to the `data-*` attributes on `article.ldap-staff-card` in the template, and to the `matchesQuery()` function in `directory.js`.
 8. When clearing cache on a settings change use `purge()` (removes transient + stale). Use `flush()` only when the stale data should be preserved (e.g., a future scheduled refresh that hasn't been confirmed yet).
 9. `uninstall.php` must clean up both `delete_transient(LDAP_ED_CACHE_KEY)` and `delete_option(LDAP_ED_STALE_KEY)`, for both single-site and each site in a multisite network.

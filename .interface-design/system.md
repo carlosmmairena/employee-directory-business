@@ -70,7 +70,7 @@ Base unit: **4px**. Scale: 4 / 8 / 10 / 12 / 16 / 20 / 24 / 28 / 32 / 48.
 ### Employee card
 
 ```html
-<article class="ldap-employee-card" data-name data-email data-title data-department>
+<article class="ldap-staff-card" data-name data-email data-title data-department>
   <div class="ldap-card-avatar" aria-hidden="true" style="--ldap-avatar-bg:#4f7df3">AB</div>
   <h3 class="ldap-name">…</h3>
   <p class="ldap-title">…</p>
