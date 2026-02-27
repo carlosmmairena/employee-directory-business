@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: LDAP Employee Directory
+ * Plugin Name: Employee Directory Business
  * Plugin URI:  https://wordpress.org/plugins/employee-directory-business/
  * Description: Connects to LDAPS to display an employee directory from an OU. Supports Elementor, Beaver Builder and a native shortcode.
  * Version:     1.0.3

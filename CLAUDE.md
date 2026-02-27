@@ -1,4 +1,4 @@
-# LDAP Employee Directory — Claude Code Guide
+# Employee Directory Business — Claude Code Guide
 
 ## Project Overview
 

@@ -1,4 +1,4 @@
-# LDAP Employee Directory — Interface Design System
+# Employee Directory Business — Interface Design System
 
 ## Intent
 

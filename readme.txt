@@ -1,4 +1,4 @@
-=== LDAP Employee Directory ===
+=== Employee Directory Business ===
 Contributors:      carlosmmairena
 Tags:              ldap, directory, wpbeaverbuilder, staff, elementor
 Requires at least: 5.8
@@ -12,7 +12,7 @@ Connects to an LDAPS server and displays an employee directory from a specific O
 
 == Description ==
 
-**LDAP Employee Directory** lets you connect your WordPress site to an LDAP / LDAPS server and publish a public employee directory with zero manual data entry.
+**Employee Directory Business** lets you connect your WordPress site to an LDAP / LDAPS server and publish a public employee directory with zero manual data entry.
 
 = Features =
 

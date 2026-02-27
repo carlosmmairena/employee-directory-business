@@ -1,6 +1,6 @@
 <?php
 /**
- * Elementor Widget — LDAP Employee Directory.
+ * Elementor Widget — Employee Directory Business.
  *
  * @package LDAP_Employee_Directory
  */
@@ -16,7 +16,7 @@ class LDAP_ED_Elementor_Widget extends \Elementor\Widget_Base {
 	}
 
 	public function get_title() {
-		return __( 'LDAP Employee Directory', 'employee-directory-business' );
+		return __( 'Employee Directory Business', 'employee-directory-business' );
 	}
 
 	public function get_icon() {

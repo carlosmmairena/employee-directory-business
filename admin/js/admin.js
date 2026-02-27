@@ -1,5 +1,5 @@
 /**
- * LDAP Employee Directory — admin JS
+ * Employee Directory Business — admin JS
  * Handles: Test Connection + Clear Cache buttons.
  */
 ( function ( $ ) {
