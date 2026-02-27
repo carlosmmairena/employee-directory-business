@@ -1,8 +1,8 @@
 === LDAP Employee Directory ===
 Contributors:      carlosmmairena
-Tags:              ldap, ldaps, directory, employees, staff, elementor, beaver-builder
+Tags:              ldap, directory, employees, staff, elementor
 Requires at least: 5.8
-Tested up to:      6.7
+Tested up to:      6.9
 Requires PHP:      7.4
 Stable tag:        1.0.2
 License:           GPLv2 or later

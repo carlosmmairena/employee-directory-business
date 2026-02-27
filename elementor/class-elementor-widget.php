@@ -211,7 +211,7 @@ class LDAP_ED_Elementor_Widget extends \Elementor\Widget_Base {
 		printf(
 			'<style>.elementor-element-%1$s .ldap-directory-wrap{--ldap-columns:%2$d}</style>',
 			esc_attr( $this->get_id() ),
-			$columns
+			absint( $columns )
 		);
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

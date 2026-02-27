@@ -225,7 +225,7 @@ class LDAP_ED_Admin {
 		add_settings_error(
 			LDAP_ED_OPTION_KEY,
 			'ldap_ed_invalid_server_scheme',
-			/* translators: %s: the submitted server value */
+			/* translators: %s: the submitted LDAP server URL */
 			sprintf(
 				__( 'Invalid LDAP server URL "%s". The URL must begin with ldap:// or ldaps://. The previous value has been kept.', 'employee-directory-business' ),
 				esc_html( $value )

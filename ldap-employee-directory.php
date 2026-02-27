@@ -11,7 +11,6 @@
  * License:     GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: employee-directory-business
- * Domain Path: /languages
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -58,9 +57,6 @@ spl_autoload_register( 'ldap_ed_autoload' );
  * Bootstrap the plugin after all plugins are loaded.
  */
 function ldap_ed_init() {
-	// Load text domain.
-	load_plugin_textdomain( 'employee-directory-business', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-
 	// Core classes.
 	new LDAP_ED_Admin();
 	new LDAP_ED_Ajax();
