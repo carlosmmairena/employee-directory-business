@@ -1,4 +1,4 @@
-# Security Analysis — Employee Directory Business
+# Security Analysis — LDAP Staff Directory
 
 > Static analysis of source code at commit `97af113`.
 > Scope: plugin code, WordPress integration, and infrastructure considerations for VPS cloud and on-premise deployments.

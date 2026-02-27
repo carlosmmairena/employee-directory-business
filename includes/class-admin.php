@@ -30,14 +30,14 @@ class LDAP_ED_Admin {
 		}
 		printf(
 			'<div class="notice notice-error"><p>%s</p></div>',
-			esc_html__( 'Employee Directory Business requires the PHP LDAP extension, which is not currently enabled on this server. The directory will not function until the extension is loaded.', 'employee-directory-business' )
+			esc_html__( 'LDAP Staff Directory requires the PHP LDAP extension, which is not currently enabled on this server. The directory will not function until the extension is loaded.', 'employee-directory-business' )
 		);
 	}
 
 	/** Add the settings sub-menu under "Settings". */
 	public function add_menu() {
 		add_options_page(
-			__( 'Employee Directory Business — Settings', 'employee-directory-business' ),
+			__( 'LDAP Staff Directory — Settings', 'employee-directory-business' ),
 			__( 'LDAP Directory', 'employee-directory-business' ),
 			'manage_options',
 			'employee-directory-business',

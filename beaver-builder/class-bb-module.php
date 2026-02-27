@@ -1,6 +1,6 @@
 <?php
 /**
- * Beaver Builder Module — Employee Directory Business.
+ * Beaver Builder Module — LDAP Staff Directory.
  *
  * @package LDAP_Employee_Directory
  */
@@ -161,7 +161,7 @@ class LDAP_ED_BB_Module extends FLBuilderModule {
 	public function __construct() {
 		parent::__construct(
 			array(
-				'name'            => __( 'Employee Directory Business', 'employee-directory-business' ),
+				'name'            => __( 'LDAP Staff Directory', 'employee-directory-business' ),
 				'description'     => __( 'Displays an employee directory from an LDAP/LDAPS server.', 'employee-directory-business' ),
 				'group'           => __( 'General', 'employee-directory-business' ),
 				'category'        => __( 'Basic', 'employee-directory-business' ),

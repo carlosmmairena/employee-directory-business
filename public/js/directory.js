@@ -1,5 +1,5 @@
 /**
- * Employee Directory Business — public JS
+ * LDAP Staff Directory — public JS
  * Real-time search + client-side pagination.
  */
 ( function () {
