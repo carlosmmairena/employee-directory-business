@@ -30,17 +30,17 @@ class LDAP_ED_Admin {
 		}
 		printf(
 			'<div class="notice notice-error"><p>%s</p></div>',
-			esc_html__( 'LDAP Staff Directory requires the PHP LDAP extension, which is not currently enabled on this server. The directory will not function until the extension is loaded.', 'employee-directory-business' )
+			esc_html__( 'LDAP Staff Directory requires the PHP LDAP extension, which is not currently enabled on this server. The directory will not function until the extension is loaded.', 'ldap-staff-directory' )
 		);
 	}
 
 	/** Add the settings sub-menu under "Settings". */
 	public function add_menu() {
 		add_options_page(
-			__( 'LDAP Staff Directory — Settings', 'employee-directory-business' ),
-			__( 'LDAP Directory', 'employee-directory-business' ),
+			__( 'LDAP Staff Directory — Settings', 'ldap-staff-directory' ),
+			__( 'LDAP Directory', 'ldap-staff-directory' ),
 			'manage_options',
-			'employee-directory-business',
+			'ldap-staff-directory',
 			array( $this, 'render_settings_page' )
 		);
 	}
@@ -56,19 +56,19 @@ class LDAP_ED_Admin {
 		// --- LDAP Connection section ---
 		add_settings_section(
 			'ldap_ed_section_connection',
-			__( 'LDAP Connection', 'employee-directory-business' ),
+			__( 'LDAP Connection', 'ldap-staff-directory' ),
 			'__return_false',
-			'employee-directory-business'
+			'ldap-staff-directory'
 		);
 
 		// Text/number fields get label_for so the <th> label links to the input.
 		$connection_text_fields = array(
-			'server'    => __( 'LDAPS Server', 'employee-directory-business' ),
-			'port'      => __( 'Port', 'employee-directory-business' ),
-			'bind_dn'   => __( 'Bind DN', 'employee-directory-business' ),
-			'bind_pass' => __( 'Bind Password', 'employee-directory-business' ),
-			'base_ou'   => __( 'Base OU', 'employee-directory-business' ),
-			'ca_cert'   => __( 'CA Certificate Path (.pem)', 'employee-directory-business' ),
+			'server'    => __( 'LDAPS Server', 'ldap-staff-directory' ),
+			'port'      => __( 'Port', 'ldap-staff-directory' ),
+			'bind_dn'   => __( 'Bind DN', 'ldap-staff-directory' ),
+			'bind_pass' => __( 'Bind Password', 'ldap-staff-directory' ),
+			'base_ou'   => __( 'Base OU', 'ldap-staff-directory' ),
+			'ca_cert'   => __( 'CA Certificate Path (.pem)', 'ldap-staff-directory' ),
 		);
 
 		foreach ( $connection_text_fields as $id => $label ) {
@@ -76,7 +76,7 @@ class LDAP_ED_Admin {
 				'ldap_ed_' . $id,
 				$label,
 				array( $this, 'render_field_' . $id ),
-				'employee-directory-business',
+				'ldap-staff-directory',
 				'ldap_ed_section_connection',
 				array( 'label_for' => 'ldap_ed_' . $id )
 			);
@@ -85,43 +85,43 @@ class LDAP_ED_Admin {
 		// Checkbox field — inline label in callback; skip label_for to avoid double-label.
 		add_settings_field(
 			'ldap_ed_verify_ssl',
-			__( 'Verify SSL Certificate', 'employee-directory-business' ),
+			__( 'Verify SSL Certificate', 'ldap-staff-directory' ),
 			array( $this, 'render_field_verify_ssl' ),
-			'employee-directory-business',
+			'ldap-staff-directory',
 			'ldap_ed_section_connection'
 		);
 
 		// Checkbox — no label_for.
 		add_settings_field(
 			'ldap_ed_exclude_disabled',
-			__( 'Exclude Disabled Accounts', 'employee-directory-business' ),
+			__( 'Exclude Disabled Accounts', 'ldap-staff-directory' ),
 			array( $this, 'render_field_exclude_disabled' ),
-			'employee-directory-business',
+			'ldap-staff-directory',
 			'ldap_ed_section_connection'
 		);
 
 		// --- Display section ---
 		add_settings_section(
 			'ldap_ed_section_display',
-			__( 'Display Options', 'employee-directory-business' ),
+			__( 'Display Options', 'ldap-staff-directory' ),
 			'__return_false',
-			'employee-directory-business'
+			'ldap-staff-directory'
 		);
 
 		// Multi-checkbox — no label_for.
 		add_settings_field(
 			'ldap_ed_fields',
-			__( 'Fields to Show', 'employee-directory-business' ),
+			__( 'Fields to Show', 'ldap-staff-directory' ),
 			array( $this, 'render_field_fields' ),
-			'employee-directory-business',
+			'ldap-staff-directory',
 			'ldap_ed_section_display'
 		);
 
 		add_settings_field(
 			'ldap_ed_per_page',
-			__( 'Items per Page', 'employee-directory-business' ),
+			__( 'Items per Page', 'ldap-staff-directory' ),
 			array( $this, 'render_field_per_page' ),
-			'employee-directory-business',
+			'ldap-staff-directory',
 			'ldap_ed_section_display',
 			array( 'label_for' => 'ldap_ed_per_page' )
 		);
@@ -129,17 +129,17 @@ class LDAP_ED_Admin {
 		// Checkbox — no label_for.
 		add_settings_field(
 			'ldap_ed_enable_search',
-			__( 'Enable Search Bar', 'employee-directory-business' ),
+			__( 'Enable Search Bar', 'ldap-staff-directory' ),
 			array( $this, 'render_field_enable_search' ),
-			'employee-directory-business',
+			'ldap-staff-directory',
 			'ldap_ed_section_display'
 		);
 
 		add_settings_field(
 			'ldap_ed_custom_css',
-			__( 'Custom CSS', 'employee-directory-business' ),
+			__( 'Custom CSS', 'ldap-staff-directory' ),
 			array( $this, 'render_field_custom_css' ),
-			'employee-directory-business',
+			'ldap-staff-directory',
 			'ldap_ed_section_display',
 			array( 'label_for' => 'ldap_ed_custom_css' )
 		);
@@ -147,16 +147,16 @@ class LDAP_ED_Admin {
 		// --- Cache section ---
 		add_settings_section(
 			'ldap_ed_section_cache',
-			__( 'Cache', 'employee-directory-business' ),
+			__( 'Cache', 'ldap-staff-directory' ),
 			'__return_false',
-			'employee-directory-business'
+			'ldap-staff-directory'
 		);
 
 		add_settings_field(
 			'ldap_ed_cache_ttl',
-			__( 'Cache TTL (minutes)', 'employee-directory-business' ),
+			__( 'Cache TTL (minutes)', 'ldap-staff-directory' ),
 			array( $this, 'render_field_cache_ttl' ),
-			'employee-directory-business',
+			'ldap-staff-directory',
 			'ldap_ed_section_cache',
 			array( 'label_for' => 'ldap_ed_cache_ttl' )
 		);
@@ -227,7 +227,7 @@ class LDAP_ED_Admin {
 			'ldap_ed_invalid_server_scheme',
 			sprintf(
 				/* translators: %s: the submitted LDAP server URL */
-				__( 'Invalid LDAP server URL "%s". The URL must begin with ldap:// or ldaps://. The previous value has been kept.', 'employee-directory-business' ),
+				__( 'Invalid LDAP server URL "%s". The URL must begin with ldap:// or ldaps://. The previous value has been kept.', 'ldap-staff-directory' ),
 				esc_html( $value )
 			),
 			'error'
@@ -238,7 +238,7 @@ class LDAP_ED_Admin {
 
 	/** Enqueue admin CSS and JS only on the plugin settings page. */
 	public function enqueue_assets( $hook ) {
-		if ( 'settings_page_employee-directory-business' !== $hook ) {
+		if ( 'settings_page_ldap-staff-directory' !== $hook ) {
 			return;
 		}
 
@@ -264,9 +264,9 @@ class LDAP_ED_Admin {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'ldap_ed_admin_nonce' ),
 				'i18n'    => array(
-					'testing'    => __( 'Testing…', 'employee-directory-business' ),
-					'clearing'   => __( 'Clearing…', 'employee-directory-business' ),
-					'cacheCleared' => __( 'Cache cleared.', 'employee-directory-business' ),
+					'testing'    => __( 'Testing…', 'ldap-staff-directory' ),
+					'clearing'   => __( 'Clearing…', 'ldap-staff-directory' ),
+					'cacheCleared' => __( 'Cache cleared.', 'ldap-staff-directory' ),
 				),
 			)
 		);
@@ -326,7 +326,7 @@ class LDAP_ED_Admin {
 			'<input type="password" id="%1$s" name="%2$s[bind_pass]" value="" class="regular-text" autocomplete="new-password" placeholder="%3$s">',
 			esc_attr( $args['label_for'] ),
 			esc_attr( LDAP_ED_OPTION_KEY ),
-			esc_attr__( '(leave blank to keep current)', 'employee-directory-business' )
+			esc_attr__( '(leave blank to keep current)', 'ldap-staff-directory' )
 		);
 	}
 
@@ -345,7 +345,7 @@ class LDAP_ED_Admin {
 			'<label><input type="checkbox" name="%1$s[verify_ssl]" value="1" %2$s> %3$s</label>',
 			esc_attr( LDAP_ED_OPTION_KEY ),
 			checked( '1', $this->get_option( 'verify_ssl', '1' ), false ),
-			esc_html__( 'Enable certificate verification (disable for self-signed certs)', 'employee-directory-business' )
+			esc_html__( 'Enable certificate verification (disable for self-signed certs)', 'ldap-staff-directory' )
 		);
 	}
 
@@ -354,8 +354,8 @@ class LDAP_ED_Admin {
 			'<label><input type="checkbox" name="%1$s[exclude_disabled]" value="1" %2$s> %3$s</label><p class="description">%4$s</p>',
 			esc_attr( LDAP_ED_OPTION_KEY ),
 			checked( '1', $this->get_option( 'exclude_disabled', '0' ), false ),
-			esc_html__( 'Exclude disabled accounts from the directory', 'employee-directory-business' ),
-			esc_html__( 'Uses the Active Directory userAccountControl attribute. Leave unchecked for OpenLDAP and other servers.', 'employee-directory-business' )
+			esc_html__( 'Exclude disabled accounts from the directory', 'ldap-staff-directory' ),
+			esc_html__( 'Uses the Active Directory userAccountControl attribute. Leave unchecked for OpenLDAP and other servers.', 'ldap-staff-directory' )
 		);
 	}
 
@@ -366,18 +366,18 @@ class LDAP_ED_Admin {
 			esc_attr( $args['label_for'] ),
 			esc_attr( LDAP_ED_OPTION_KEY ),
 			esc_attr( $this->get_option( 'ca_cert' ) ),
-			esc_html__( 'Full server path to the CA certificate file. Used when SSL verification is enabled.', 'employee-directory-business' )
+			esc_html__( 'Full server path to the CA certificate file. Used when SSL verification is enabled.', 'ldap-staff-directory' )
 		);
 	}
 
 	public function render_field_fields() {
 		$saved = $this->get_option( 'fields', array( 'name', 'email', 'title', 'department' ) );
 		$items = array(
-			'name'       => __( 'Full Name', 'employee-directory-business' ),
-			'email'      => __( 'Email', 'employee-directory-business' ),
-			'title'      => __( 'Job Title', 'employee-directory-business' ),
-			'department' => __( 'Department', 'employee-directory-business' ),
-			'phone'      => __( 'Phone', 'employee-directory-business' ),
+			'name'       => __( 'Full Name', 'ldap-staff-directory' ),
+			'email'      => __( 'Email', 'ldap-staff-directory' ),
+			'title'      => __( 'Job Title', 'ldap-staff-directory' ),
+			'department' => __( 'Department', 'ldap-staff-directory' ),
+			'phone'      => __( 'Phone', 'ldap-staff-directory' ),
 		);
 		foreach ( $items as $key => $label ) {
 			printf(
@@ -405,7 +405,7 @@ class LDAP_ED_Admin {
 			'<label><input type="checkbox" name="%1$s[enable_search]" value="1" %2$s> %3$s</label>',
 			esc_attr( LDAP_ED_OPTION_KEY ),
 			checked( '1', $this->get_option( 'enable_search', '1' ), false ),
-			esc_html__( 'Show search field above the directory', 'employee-directory-business' )
+			esc_html__( 'Show search field above the directory', 'ldap-staff-directory' )
 		);
 	}
 
@@ -416,7 +416,7 @@ class LDAP_ED_Admin {
 			esc_attr( $args['label_for'] ),
 			esc_attr( LDAP_ED_OPTION_KEY ),
 			esc_textarea( $this->get_option( 'custom_css' ) ),
-			esc_html__( 'Custom CSS appended to the directory stylesheet.', 'employee-directory-business' )
+			esc_html__( 'Custom CSS appended to the directory stylesheet.', 'ldap-staff-directory' )
 		);
 	}
 
@@ -427,7 +427,7 @@ class LDAP_ED_Admin {
 			esc_attr( $args['label_for'] ),
 			esc_attr( LDAP_ED_OPTION_KEY ),
 			absint( $this->get_option( 'cache_ttl', 60 ) ),
-			esc_html__( 'minutes', 'employee-directory-business' )
+			esc_html__( 'minutes', 'ldap-staff-directory' )
 		);
 	}
 }

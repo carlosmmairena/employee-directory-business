@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: LDAP Staff Directory
- * Plugin URI:  https://wordpress.org/plugins/employee-directory-business/
+ * Plugin URI:  https://wordpress.org/plugins/ldap-staff-directory/
  * Description: Connects to LDAPS to display an employee directory from an OU. Supports Elementor, Beaver Builder and a native shortcode.
  * Version:     1.0.3
  * Requires at least: 5.8
@@ -10,7 +10,7 @@
  * Author URI:  https://carlosmmairena.com
  * License:     GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: employee-directory-business
+ * Text Domain: ldap-staff-directory
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

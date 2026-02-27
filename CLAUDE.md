@@ -4,8 +4,8 @@
 
 WordPress plugin (GPL v2) that connects a site to an LDAP/LDAPS server and renders a public employee directory. Supports a native shortcode, an Elementor widget, and a Beaver Builder module.
 
-- **Plugin slug:** `employee-directory-business`
-- **Text domain:** `employee-directory-business`
+- **Plugin slug:** `ldap-staff-directory`
+- **Text domain:** `ldap-staff-directory`
 - **Constant/class prefix:** `LDAP_ED_`
 - **Option key:** `ldap_ed_settings` (constant `LDAP_ED_OPTION_KEY`)
 - **Cache transient key:** `ldap_ed_users` (constant `LDAP_ED_CACHE_KEY`) — single global key, no per-shortcode variation
@@ -57,7 +57,7 @@ readme.txt                           # WordPress.org readme
 | `plugins_loaded` | `ldap_ed_init()` | Bootstrap |
 | `admin_menu` | `LDAP_ED_Admin::add_menu()` | Settings sub-menu under "Settings" |
 | `admin_init` | `LDAP_ED_Admin::register_settings()` | Settings API registration |
-| `admin_enqueue_scripts` | `LDAP_ED_Admin::enqueue_assets()` | Conditional: only on `settings_page_employee-directory-business` |
+| `admin_enqueue_scripts` | `LDAP_ED_Admin::enqueue_assets()` | Conditional: only on `settings_page_ldap-staff-directory` |
 | `wp_enqueue_scripts` | `LDAP_ED_Shortcode::register_assets()` | Registers public CSS/JS; enqueues early when shortcode is in `post_content` |
 | `wp_ajax_ldap_ed_test_connection` | `LDAP_ED_Ajax::test_connection()` | Admin-only AJAX |
 | `wp_ajax_ldap_ed_clear_cache` | `LDAP_ED_Ajax::clear_cache()` | Admin-only AJAX |
@@ -245,7 +245,7 @@ Follow **WordPress Coding Standards (WPCS)**:
   ```php
   sprintf(
       /* translators: %s: description of placeholder */
-      __( 'Message with %s placeholder.', 'employee-directory-business' ),
+      __( 'Message with %s placeholder.', 'ldap-staff-directory' ),
       $value
   )
   ```

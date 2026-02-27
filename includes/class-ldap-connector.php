@@ -48,7 +48,7 @@ class LDAP_ED_Connector {
 		$port   = absint( $this->settings['port'] );
 
 		if ( empty( $server ) ) {
-			return new \WP_Error( 'ldap_no_server', __( 'LDAP server address is not configured.', 'employee-directory-business' ) );
+			return new \WP_Error( 'ldap_no_server', __( 'LDAP server address is not configured.', 'ldap-staff-directory' ) );
 		}
 
 		// Disable SSL certificate verification when requested (self-signed certs).
@@ -68,7 +68,7 @@ class LDAP_ED_Connector {
 		$this->connection = @ldap_connect( $server, $port );
 
 		if ( ! $this->connection ) {
-			return new \WP_Error( 'ldap_connect_failed', __( 'Could not create LDAP connection handle.', 'employee-directory-business' ) );
+			return new \WP_Error( 'ldap_connect_failed', __( 'Could not create LDAP connection handle.', 'ldap-staff-directory' ) );
 		}
 
 		ldap_set_option( $this->connection, LDAP_OPT_PROTOCOL_VERSION, 3 );
@@ -102,7 +102,7 @@ class LDAP_ED_Connector {
 			return new \WP_Error(
 				'ldap_bind_failed',
 				/* translators: %s: LDAP error message */
-				sprintf( __( 'LDAP bind failed: %s', 'employee-directory-business' ), $error )
+				sprintf( __( 'LDAP bind failed: %s', 'ldap-staff-directory' ), $error )
 			);
 		}
 
@@ -139,7 +139,7 @@ class LDAP_ED_Connector {
 			return new \WP_Error(
 				'ldap_search_failed',
 				/* translators: %s: LDAP error message */
-				sprintf( __( 'LDAP search failed: %s', 'employee-directory-business' ), $error )
+				sprintf( __( 'LDAP search failed: %s', 'ldap-staff-directory' ), $error )
 			);
 		}
 
@@ -186,7 +186,7 @@ class LDAP_ED_Connector {
 		return array(
 			'success' => true,
 			/* translators: %d: number of users found */
-			'message' => sprintf( __( 'Connection successful. %d user(s) found.', 'employee-directory-business' ), count( $users ) ),
+			'message' => sprintf( __( 'Connection successful. %d user(s) found.', 'ldap-staff-directory' ), count( $users ) ),
 			'count'   => count( $users ),
 		);
 	}

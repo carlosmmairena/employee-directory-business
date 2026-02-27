@@ -11,7 +11,7 @@
 
 Open a **GitHub Issue** using the label `security`:
 
-**[https://github.com/carlosmmairena/employee-directory-business/issues/new?labels=security](https://github.com/carlosmmairena/employee-directory-business/issues/new?labels=security)**
+**[https://github.com/carlosmmairena/ldap-staff-directory/issues/new?labels=security](https://github.com/carlosmmairena/ldap-staff-directory/issues/new?labels=security)**
 
 Please include in your report:
 - Description of the vulnerability and its potential impact
