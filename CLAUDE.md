@@ -10,12 +10,12 @@ WordPress plugin (GPL v2) that connects a site to an LDAP/LDAPS server and rende
 - **Option key:** `ldap_ed_settings` (constant `LDAP_ED_OPTION_KEY`)
 - **Cache transient key:** `ldap_ed_users` (constant `LDAP_ED_CACHE_KEY`) — single global key, no per-shortcode variation
 - **Stale cache key:** `ldap_ed_users_stale` (constant `LDAP_ED_STALE_KEY`) — permanent WP option, no TTL; fallback when LDAP is unreachable
-- **Requires:** PHP 7.4+, WordPress 5.8+, PHP `ldap` extension (checked on activation and at runtime via `admin_notices`)
+- **Requires:** PHP 7.4+, WordPress 5.8+, PHP `ldap` extension (checked at runtime via `admin_notices`; activation does **not** block — the plugin activates regardless and shows a persistent admin error notice when the extension is absent)
 
 ## File Structure
 
 ```
-employee-directory-business.php          # Main file: constants, autoloader, bootstrap hooks
+ldap-employee-directory.php              # Main file: constants, autoloader, bootstrap hooks
 includes/
   class-ldap-connector.php           # LDAP_ED_Connector  — connect/bind/search/test
   class-cache.php                    # LDAP_ED_Cache      — WP Transients wrapper
@@ -241,7 +241,19 @@ Follow **WordPress Coding Standards (WPCS)**:
 - Nonces on every AJAX action (`check_ajax_referer`) and capability checks (`current_user_can('manage_options')`).
 - Prefix all functions, classes, constants, option names with `ldap_ed_` / `LDAP_ED_`.
 - Silence LDAP PHP functions (`@ldap_*`) — they trigger warnings on failure; capture errors with `ldap_error()`.
-- Add `/* translators: ... */` comments before every `sprintf`+`__()` call.
+- Add `/* translators: ... */` comments for every `sprintf`+`__()` call. The comment must be placed **inside** `sprintf()`, on the line **immediately above** `__()` — NOT above the `sprintf()` call itself. The WordPress Plugin Checker looks for the comment on the line directly preceding `__()`:
+  ```php
+  sprintf(
+      /* translators: %s: description of placeholder */
+      __( 'Message with %s placeholder.', 'employee-directory-business' ),
+      $value
+  )
+  ```
+- All variables declared in template/included files (`public/views/directory.php`, `beaver-builder/frontend.php`) must use the `ldap_ed_` prefix. These files are included in global scope by WordPress/page builders, so unprefixed local variables trigger the WPCS global-variable naming rule. Exception: variables injected by the page builder itself (`$settings`, `$module` in BB; `$settings` in Elementor) must keep their original names.
+- For integer values in `printf()`/`sprintf()` output, wrap with `absint()` explicitly — `%d` format alone does not satisfy WPCS escaping checks.
+- For CSS output inside `<style>` blocks (e.g., `custom_css` already sanitized via `wp_strip_all_tags()` on save), use `// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped` with an inline explanation. There is no WordPress-native CSS-escaping function; `esc_html()` would break CSS selectors containing `>` or `"`.
+- Do not call `load_plugin_textdomain()` — WordPress.org-hosted plugins load translations automatically since WP 4.6. The `Text Domain` header in the plugin file is sufficient.
+- Do not add a `Domain Path` header unless the plugin ships local `.po`/`.mo` translation files in the repository. A header pointing to a non-existent folder triggers a plugin-check error.
 - Never echo the bind password back to the admin form. Blank submission = keep the existing saved value.
 - Binary settings (`verify_ssl`, `enable_search`) use string `'1'`/`'0'`, not PHP booleans, for WP options consistency.
 - Use `printf()`/`sprintf()` for all HTML output in `render_field_*` methods — no `echo` with string concatenation.
@@ -254,7 +266,7 @@ Follow **WordPress Coding Standards (WPCS)**:
 2. Instantiate it inside `ldap_ed_init()` if needed.
 3. Add new settings fields via `LDAP_ED_Admin::register_settings()` + a `render_field_*` method + sanitization in `sanitize_settings()`. Assign to the appropriate section (`connection`, `display`, or `cache`).
 4. Escape output, sanitize input, add nonce/capability checks on any new AJAX handler.
-5. Update `readme.txt` changelog and bump `LDAP_ED_VERSION` in the plugin header and constant consistently.
+5. Update `readme.txt` changelog (add entry under `== Changelog ==`) and bump `LDAP_ED_VERSION` in the plugin header and the constant **and** `Stable tag` in `readme.txt` consistently.
 6. If adding a new LDAP attribute, add it to the `$attributes` array in `LDAP_ED_Connector::get_users()`, map it in `get_entry_value()`, and add the key to the user array built in the same method.
 7. If adding a new displayable field, also add it to the allowed-fields list in `sanitize_settings()`, to `$allowed_fields` in `LDAP_ED_Shortcode::render()`, to the Elementor/BB controls, to the `data-*` attributes on `article.ldap-employee-card` in the template, and to the `matchesQuery()` function in `directory.js`.
 8. When clearing cache on a settings change use `purge()` (removes transient + stale). Use `flush()` only when the stale data should be preserved (e.g., a future scheduled refresh that hasn't been confirmed yet).

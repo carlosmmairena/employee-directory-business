@@ -1,10 +1,10 @@
 === LDAP Employee Directory ===
 Contributors:      carlosmmairena
-Tags:              ldap, directory, employees, staff, elementor
+Tags:              ldap, directory, wpbeaverbuilder, staff, elementor
 Requires at least: 5.8
 Tested up to:      6.9
 Requires PHP:      7.4
-Stable tag:        1.0.2
+Stable tag:        1.0.3
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,6 +83,16 @@ By default 60 minutes. Change the TTL under **Settings → LDAP Directory → Ca
 4. Beaver Builder module tabs
 
 == Changelog ==
+
+= 1.0.3 =
+* Fix: Plugin now activates without the PHP LDAP extension; a persistent admin notice informs the administrator when the extension is missing instead of blocking activation with a fatal error.
+* Fix: `/* translators: */` comment repositioned inside `sprintf()`, immediately above `__()`, to satisfy the WordPress Plugin Checker i18n rule.
+* Fix: All local variables in included template files (`directory.php`, `beaver-builder/frontend.php`) renamed with `ldap_ed_` prefix to comply with WPCS global-variable naming requirements.
+* Fix: `absint()` applied to `$columns` in Elementor widget `printf()` output to satisfy the WPCS escaping rule for integer values.
+* Fix: `load_plugin_textdomain()` removed — not required for WordPress.org-hosted plugins since WordPress 4.6.
+* Fix: `Domain Path` header removed from plugin file — no local translation files are bundled.
+* Chore: "Tested up to" updated to WordPress 6.9.
+* Chore: Tag list reduced to five entries per WordPress.org limit.
 
 = 1.0.2 =
 * Feat: Added `telephoneNumber` field — read from LDAP, displayed on cards as a clickable `tel:` link, included in client-side search, and available in admin panel, Elementor and Beaver Builder controls.
