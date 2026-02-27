@@ -48,17 +48,17 @@ $ldap_avatar_palette = array(
 		<?php if ( empty( $users ) ) : ?>
 			<p class="ldap-no-results"><?php esc_html_e( 'No employees found.', 'employee-directory-business' ); ?></p>
 		<?php else : ?>
-			<?php foreach ( $users as $user ) :
+			<?php foreach ( $users as $ldap_ed_user ) :
 				// Compute initials (up to 2 characters) from the display name.
-				$ldap_name     = $user['name'] ?? '';
+				$ldap_name     = $ldap_ed_user['name'] ?? '';
 				$ldap_parts    = preg_split( '/\s+/', trim( $ldap_name ), 2 );
 				$ldap_initials = strtoupper( substr( $ldap_parts[0] ?? '', 0, 1 ) );
 				if ( ! empty( $ldap_parts[1] ) ) {
 					$ldap_initials .= strtoupper( substr( $ldap_parts[1], 0, 1 ) );
 				}
 				// Fall back to first letter of email when name is absent.
-				if ( '' === $ldap_initials && ! empty( $user['email'] ) ) {
-					$ldap_initials = strtoupper( substr( $user['email'], 0, 1 ) );
+				if ( '' === $ldap_initials && ! empty( $ldap_ed_user['email'] ) ) {
+					$ldap_initials = strtoupper( substr( $ldap_ed_user['email'], 0, 1 ) );
 				}
 
 				// Deterministic background color derived from the name.
@@ -67,11 +67,11 @@ $ldap_avatar_palette = array(
 			?>
 			<article
 				class="ldap-employee-card"
-				data-name="<?php echo esc_attr( strtolower( $user['name'] ) ); ?>"
-				data-email="<?php echo esc_attr( strtolower( $user['email'] ) ); ?>"
-				data-title="<?php echo esc_attr( strtolower( $user['title'] ) ); ?>"
-				data-department="<?php echo esc_attr( strtolower( $user['department'] ) ); ?>"
-				data-phone="<?php echo esc_attr( strtolower( $user['phone'] ?? '' ) ); ?>"
+				data-name="<?php echo esc_attr( strtolower( $ldap_ed_user['name'] ) ); ?>"
+				data-email="<?php echo esc_attr( strtolower( $ldap_ed_user['email'] ) ); ?>"
+				data-title="<?php echo esc_attr( strtolower( $ldap_ed_user['title'] ) ); ?>"
+				data-department="<?php echo esc_attr( strtolower( $ldap_ed_user['department'] ) ); ?>"
+				data-phone="<?php echo esc_attr( strtolower( $ldap_ed_user['phone'] ?? '' ) ); ?>"
 			>
 				<div
 					class="ldap-card-avatar"
@@ -79,29 +79,29 @@ $ldap_avatar_palette = array(
 					style="--ldap-avatar-bg:<?php echo esc_attr( $ldap_avatar_bg ); ?>"
 				><?php echo esc_html( $ldap_initials ); ?></div>
 
-				<?php if ( in_array( 'name', $fields, true ) && ! empty( $user['name'] ) ) : ?>
-				<h3 class="ldap-name"><?php echo esc_html( $user['name'] ); ?></h3>
+				<?php if ( in_array( 'name', $fields, true ) && ! empty( $ldap_ed_user['name'] ) ) : ?>
+				<h3 class="ldap-name"><?php echo esc_html( $ldap_ed_user['name'] ); ?></h3>
 				<?php endif; ?>
 
-				<?php if ( in_array( 'title', $fields, true ) && ! empty( $user['title'] ) ) : ?>
-				<p class="ldap-title"><?php echo esc_html( $user['title'] ); ?></p>
+				<?php if ( in_array( 'title', $fields, true ) && ! empty( $ldap_ed_user['title'] ) ) : ?>
+				<p class="ldap-title"><?php echo esc_html( $ldap_ed_user['title'] ); ?></p>
 				<?php endif; ?>
 
-				<?php if ( in_array( 'department', $fields, true ) && ! empty( $user['department'] ) ) : ?>
+				<?php if ( in_array( 'department', $fields, true ) && ! empty( $ldap_ed_user['department'] ) ) : ?>
 				<p class="ldap-department">
-					<span class="ldap-dept-badge"><?php echo esc_html( $user['department'] ); ?></span>
+					<span class="ldap-dept-badge"><?php echo esc_html( $ldap_ed_user['department'] ); ?></span>
 				</p>
 				<?php endif; ?>
 
-				<?php if ( in_array( 'email', $fields, true ) && ! empty( $user['email'] ) ) : ?>
-				<a class="ldap-email" href="mailto:<?php echo esc_attr( $user['email'] ); ?>">
-					<?php echo esc_html( $user['email'] ); ?>
+				<?php if ( in_array( 'email', $fields, true ) && ! empty( $ldap_ed_user['email'] ) ) : ?>
+				<a class="ldap-email" href="mailto:<?php echo esc_attr( $ldap_ed_user['email'] ); ?>">
+					<?php echo esc_html( $ldap_ed_user['email'] ); ?>
 				</a>
 				<?php endif; ?>
 
-				<?php if ( in_array( 'phone', $fields, true ) && ! empty( $user['phone'] ) ) : ?>
-				<a class="ldap-phone" href="tel:<?php echo esc_attr( $user['phone'] ); ?>">
-					<?php echo esc_html( $user['phone'] ); ?>
+				<?php if ( in_array( 'phone', $fields, true ) && ! empty( $ldap_ed_user['phone'] ) ) : ?>
+				<a class="ldap-phone" href="tel:<?php echo esc_attr( $ldap_ed_user['phone'] ); ?>">
+					<?php echo esc_html( $ldap_ed_user['phone'] ); ?>
 				</a>
 				<?php endif; ?>
 			</article>

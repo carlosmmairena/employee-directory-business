@@ -20,9 +20,9 @@ delete_option( 'ldap_ed_users_stale' );
 
 // Multisite: remove per-site options.
 if ( is_multisite() ) {
-	$sites = get_sites( array( 'fields' => 'ids', 'number' => 0 ) );
-	foreach ( $sites as $site_id ) {
-		switch_to_blog( $site_id );
+	$ldap_ed_sites = get_sites( array( 'fields' => 'ids', 'number' => 0 ) );
+	foreach ( $ldap_ed_sites as $ldap_ed_site_id ) {
+		switch_to_blog( $ldap_ed_site_id );
 		delete_option( 'ldap_ed_settings' );
 		delete_transient( 'ldap_ed_users' );
 		delete_option( 'ldap_ed_users_stale' );
