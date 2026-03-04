@@ -3,7 +3,7 @@
  * Plugin Name: LDAP Staff Directory
  * Plugin URI:  https://wordpress.org/plugins/ldap-staff-directory/
  * Description: Connects to LDAPS to display an employee directory from an OU. Supports Elementor, Beaver Builder and a native shortcode.
- * Version:     1.0.3
+ * Version:     1.0.4
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Author:      Carlos Mairena
@@ -18,13 +18,95 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants.
-define( 'LDAP_ED_VERSION',     '1.0.3' );
+define( 'LDAP_ED_VERSION',     '1.0.4' );
 define( 'LDAP_ED_FILE',        __FILE__ );
 define( 'LDAP_ED_DIR',         plugin_dir_path( __FILE__ ) );
 define( 'LDAP_ED_URL',         plugin_dir_url( __FILE__ ) );
 define( 'LDAP_ED_OPTION_KEY',  'ldap_ed_settings' );
 define( 'LDAP_ED_CACHE_KEY',   'ldap_ed_users' );
 define( 'LDAP_ED_STALE_KEY',   'ldap_ed_users_stale' );
+
+// -------------------------------------------------------------------------
+// Sodium crypto helpers — bind password encryption (added 1.0.4)
+// -------------------------------------------------------------------------
+
+/**
+ * Derives a 32-byte Sodium secretbox key from WordPress's AUTH/SECURE_AUTH salts.
+ *
+ * The 'ldap-ed-v1' BLAKE2b sub-key provides domain separation so this derivation
+ * is unique to this plugin even if another plugin uses the same WP salts.
+ *
+ * WARNING: Rotating WordPress security keys (wp-config.php) changes this key.
+ * ldap_ed_salts_have_changed() detects this before ldap_bind() fails silently.
+ *
+ * @return string 32-byte binary key.
+ */
+function ldap_ed_derive_sodium_key(): string {
+	// Prefix a plugin-specific domain label to the message for key separation.
+	// BLAKE2b key parameter must be 16–64 bytes or empty; using empty (unkeyed)
+	// with a domain-prefixed message is the standard alternative.
+	return sodium_crypto_generichash(
+		'ldap-staff-directory:v1:' . wp_salt( 'auth' ) . wp_salt( 'secure_auth' ),
+		'',
+		SODIUM_CRYPTO_SECRETBOX_KEYBYTES
+	);
+}
+
+/**
+ * Encrypts the LDAP bind password using XSalsa20-Poly1305.
+ *
+ * Stores a SHA-256 fingerprint of the current AUTH_KEY alongside the ciphertext
+ * so salt rotation can be detected before ldap_bind() fails.
+ *
+ * @param string $plain Plaintext password.
+ * @return string Encoded string prefixed with 'sod::'.
+ */
+function ldap_ed_encrypt_pass( string $plain ): string {
+	$key   = ldap_ed_derive_sodium_key();
+	$nonce = random_bytes( SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
+	$enc   = sodium_crypto_secretbox( $plain, $nonce, $key );
+	if ( function_exists( 'sodium_memzero' ) ) {
+		sodium_memzero( $key );
+	}
+	update_option( 'ldap_ed_salt_fingerprint', hash( 'sha256', wp_salt( 'auth' ) ), false );
+	return 'sod::' . base64_encode( $nonce . $enc );
+}
+
+/**
+ * Decrypts the LDAP bind password.
+ *
+ * Values without the 'sod::' prefix are returned as-is (legacy plaintext migration path).
+ * Returns '' when MAC verification fails (caused by WP salt rotation).
+ *
+ * @param string $stored Value from wp_options.
+ * @return string Decrypted plaintext password, or '' on authentication failure.
+ */
+function ldap_ed_decrypt_pass( string $stored ): string {
+	if ( 0 !== strncmp( $stored, 'sod::', 5 ) ) {
+		return $stored; // Legacy plaintext — transparent backwards-compatible migration.
+	}
+	$key   = ldap_ed_derive_sodium_key();
+	$data  = base64_decode( substr( $stored, 5 ) );
+	$nonce = substr( $data, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
+	$plain = sodium_crypto_secretbox_open( substr( $data, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES ), $nonce, $key );
+	if ( function_exists( 'sodium_memzero' ) ) {
+		sodium_memzero( $key );
+	}
+	return false === $plain ? '' : $plain;
+}
+
+/**
+ * Returns true when WordPress salts have been regenerated since the last password save.
+ *
+ * Compares the stored SHA-256 fingerprint of AUTH_KEY against the current value.
+ * Used by the admin notice and by ldap_bind() guard to surface a clear error.
+ *
+ * @return bool
+ */
+function ldap_ed_salts_have_changed(): bool {
+	$stored = get_option( 'ldap_ed_salt_fingerprint', '' );
+	return '' !== $stored && ! hash_equals( $stored, hash( 'sha256', wp_salt( 'auth' ) ) );
+}
 
 /**
  * Flush rewrite rules on deactivation (nothing registered currently, kept for future use).

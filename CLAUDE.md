@@ -10,6 +10,7 @@ WordPress plugin (GPL v2) that connects a site to an LDAP/LDAPS server and rende
 - **Option key:** `ldap_ed_settings` (constant `LDAP_ED_OPTION_KEY`)
 - **Cache transient key:** `ldap_ed_users` (constant `LDAP_ED_CACHE_KEY`) — single global key, no per-shortcode variation
 - **Stale cache key:** `ldap_ed_users_stale` (constant `LDAP_ED_STALE_KEY`) — permanent WP option, no TTL; fallback when LDAP is unreachable
+- **Salt fingerprint key:** `ldap_ed_salt_fingerprint` — permanent WP option (autoload=false); stores SHA-256 of `AUTH_KEY` to detect WP salt rotation. Added in 1.0.4; deleted on uninstall.
 - **Requires:** PHP 7.4+, WordPress 5.8+, PHP `ldap` extension (checked at runtime via `admin_notices`; activation does **not** block — the plugin activates regardless and shows a persistent admin error notice when the extension is absent)
 
 ## File Structure
@@ -110,6 +111,14 @@ private function sanitize_ldap_server( $raw, $previous ): string  // validates l
 private function get_option( $key, $default = '' ): mixed
 ```
 
+**Global crypto helpers** (defined in `ldap-staff-directory.php`, available after `plugins_loaded`):
+```php
+function ldap_ed_derive_sodium_key(): string      // BLAKE2b(wp_salt('auth').wp_salt('secure_auth'), 'ldap-ed-v1', 32)
+function ldap_ed_encrypt_pass( string $plain ): string   // XSalsa20-Poly1305; returns 'sod::<base64>'; stores salt fingerprint
+function ldap_ed_decrypt_pass( string $stored ): string  // Decrypts 'sod::' values; passes legacy plaintext through; '' on MAC fail
+function ldap_ed_salts_have_changed(): bool        // True when stored fingerprint ≠ hash('sha256', wp_salt('auth'))
+```
+
 **`LDAP_ED_Ajax`**
 ```php
 public function test_connection(): void   // wp_send_json_success/error
@@ -153,7 +162,7 @@ Settings are split into three sections: `ldap_ed_section_connection`, `ldap_ed_s
 | `server` | connection | string | `ldaps://` | `sanitize_ldap_server()` — allows only `ldap://`/`ldaps://`; falls back to previous value on invalid scheme |
 | `port` | connection | int | `636` | `absint()` |
 | `bind_dn` | connection | string | `''` | `sanitize_text_field()` |
-| `bind_pass` | connection | string | `''` | Raw (never echoed; blank = keep existing) |
+| `bind_pass` | connection | string | `''` | Encrypted at rest via `ldap_ed_encrypt_pass()` (XSalsa20-Poly1305, key derived from WP salts); blank = keep existing. Decrypted in `LDAP_ED_Connector::bind()` via `ldap_ed_decrypt_pass()`. Legacy plaintext migrates transparently on next save. |
 | `base_ou` | connection | string | `''` | `sanitize_text_field()` |
 | `verify_ssl` | connection | `'0'`/`'1'` | `'1'` | Binary |
 | `ca_cert` | connection | string | `''` | `sanitize_text_field()` |

@@ -4,7 +4,7 @@ Tags:              ldap, directory, wpbeaverbuilder, staff, elementor
 Requires at least: 5.8
 Tested up to:      6.9
 Requires PHP:      7.4
-Stable tag:        1.0.3
+Stable tag:        1.0.4
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,6 +83,12 @@ By default 60 minutes. Change the TTL under **Settings → LDAP Directory → Ca
 4. Beaver Builder module tabs
 
 == Changelog ==
+
+= 1.0.4 =
+* Security: LDAP bind password is now encrypted at rest using libsodium (XSalsa20-Poly1305). The encryption key is derived from WordPress's built-in security keys — no configuration required.
+* Security: Existing plaintext passwords continue to work and are automatically re-encrypted on the next settings save (transparent migration).
+* Security: An admin notice is shown when WordPress security keys (wp-config.php) have been regenerated, prompting the administrator to re-enter the bind password.
+* Note: Regenerating WordPress security keys requires re-entering the bind password once in Settings → LDAP Staff Directory.
 
 = 1.0.3 =
 * Fix: Plugin now activates without the PHP LDAP extension; a persistent admin notice informs the administrator when the extension is missing instead of blocking activation with a fatal error.

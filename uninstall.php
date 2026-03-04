@@ -18,6 +18,9 @@ delete_option( 'ldap_ed_settings' );
 delete_transient( 'ldap_ed_users' );
 delete_option( 'ldap_ed_users_stale' );
 
+// Remove the encryption salt fingerprint (added in 1.0.4).
+delete_option( 'ldap_ed_salt_fingerprint' );
+
 // Multisite: remove per-site options.
 if ( is_multisite() ) {
 	$ldap_ed_sites = get_sites( array( 'fields' => 'ids', 'number' => 0 ) );
@@ -26,6 +29,7 @@ if ( is_multisite() ) {
 		delete_option( 'ldap_ed_settings' );
 		delete_transient( 'ldap_ed_users' );
 		delete_option( 'ldap_ed_users_stale' );
+		delete_option( 'ldap_ed_salt_fingerprint' );
 		restore_current_blog();
 	}
 }

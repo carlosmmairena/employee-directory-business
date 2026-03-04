@@ -92,7 +92,15 @@ class LDAP_ED_Connector {
 		}
 
 		$bind_dn   = sanitize_text_field( $this->settings['bind_dn'] );
-		$bind_pass = $this->settings['bind_pass'];
+		$bind_pass = ldap_ed_decrypt_pass( $this->settings['bind_pass'] );
+
+		// Guard: empty bind_pass after decryption means salt rotation broke the stored value.
+		if ( 0 === strncmp( $this->settings['bind_pass'], 'sod::', 5 ) && '' === $bind_pass ) {
+			return new \WP_Error(
+				'ldap_decrypt_failed',
+				__( 'LDAP bind password could not be decrypted. WordPress security keys may have been regenerated — please re-enter the password in Settings → LDAP Staff Directory.', 'ldap-staff-directory' )
+			);
+		}
 
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		$bound = @ldap_bind( $this->connection, $bind_dn, $bind_pass );

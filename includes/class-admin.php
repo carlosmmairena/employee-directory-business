@@ -16,6 +16,7 @@ class LDAP_ED_Admin {
 		add_action( 'admin_init',            array( $this, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'admin_notices',         array( $this, 'maybe_show_ldap_extension_notice' ) );
+		add_action( 'admin_notices',         array( $this, 'maybe_show_salt_rotation_notice' ) );
 	}
 
 	/**
@@ -190,9 +191,10 @@ class LDAP_ED_Admin {
 			}
 		}
 
-		// Only update password if a new one was supplied.
-		$clean['bind_pass'] = ! empty( $input['bind_pass'] )
-			? $input['bind_pass']
+		// Only update password if a new one was supplied — encrypt it at rest.
+		$plain_pass         = ! empty( $input['bind_pass'] ) ? $input['bind_pass'] : '';
+		$clean['bind_pass'] = '' !== $plain_pass
+			? ldap_ed_encrypt_pass( $plain_pass )
 			: ( $existing['bind_pass'] ?? '' );
 
 		// Settings changed — purge both TTL transient and stale option since the
@@ -328,6 +330,30 @@ class LDAP_ED_Admin {
 			esc_attr( LDAP_ED_OPTION_KEY ),
 			esc_attr__( '(leave blank to keep current)', 'ldap-staff-directory' )
 		);
+	}
+
+	/**
+	 * Shows a persistent admin error when WordPress security keys have been regenerated,
+	 * making the stored encrypted bind password unreadable until re-entered.
+	 *
+	 * Only displayed to users with manage_options capability.
+	 * Only triggered when a 'sod::' encrypted password is stored AND the salt fingerprint changed.
+	 */
+	public function maybe_show_salt_rotation_notice(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		$settings = get_option( LDAP_ED_OPTION_KEY, array() );
+		$pass     = $settings['bind_pass'] ?? '';
+		if ( 0 === strncmp( $pass, 'sod::', 5 ) && ldap_ed_salts_have_changed() ) {
+			printf(
+				'<div class="notice notice-error"><p>%s</p></div>',
+				esc_html__(
+					'LDAP Staff Directory: WordPress security keys were changed. Please re-enter the LDAP bind password in Settings → LDAP Staff Directory.',
+					'ldap-staff-directory'
+				)
+			);
+		}
 	}
 
 	/** @param array $args Settings field args passed by the Settings API. */
