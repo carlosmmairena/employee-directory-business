@@ -8,7 +8,7 @@
  *   $per_page      — int, items per page
  *   $enable_search — bool, show search input
  *
- * @package LDAP_Employee_Directory
+ * @package LDAP_Staff_Directory
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

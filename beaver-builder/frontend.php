@@ -3,7 +3,7 @@
  * Beaver Builder module — frontend render template.
  * The $module and $settings variables are provided by FLBuilder.
  *
- * @package LDAP_Employee_Directory
+ * @package LDAP_Staff_Directory
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

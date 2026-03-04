@@ -2,7 +2,7 @@
 /**
  * Admin panel — settings page registration and rendering.
  *
- * @package LDAP_Employee_Directory
+ * @package LDAP_Staff_Directory
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

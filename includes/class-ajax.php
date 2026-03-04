@@ -2,7 +2,7 @@
 /**
  * AJAX handlers — test connection and clear cache.
  *
- * @package LDAP_Employee_Directory
+ * @package LDAP_Staff_Directory
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

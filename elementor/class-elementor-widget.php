@@ -2,7 +2,7 @@
 /**
  * Elementor Widget — LDAP Staff Directory.
  *
- * @package LDAP_Employee_Directory
+ * @package LDAP_Staff_Directory
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class LDAP_ED_Elementor_Widget extends \Elementor\Widget_Base {
 
 	public function get_name() {
-		return 'ldap_employee_directory';
+		return 'ldap_staff_directory';
 	}
 
 	public function get_title() {

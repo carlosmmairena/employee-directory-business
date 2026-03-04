@@ -3,7 +3,7 @@
  * Runs when the plugin is uninstalled (deleted from WordPress admin).
  * Removes all plugin options and transients.
  *
- * @package LDAP_Employee_Directory
+ * @package LDAP_Staff_Directory
  */
 
 // WordPress confirms uninstall context before calling this file.

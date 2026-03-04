@@ -227,7 +227,7 @@ Attributes override admin defaults. Shortcode attributes: `fields` (comma-separa
 ## Page Builder Integrations
 
 **Elementor widget** (`LDAP_ED_Elementor_Widget extends \Elementor\Widget_Base`):
-- Name: `ldap_employee_directory`, icon: `eicon-person`, category: `general`
+- Name: `ldap_staff_directory`, icon: `eicon-person`, category: `general`
 - Content controls: `fields` (multi-select2: name, email, title, department, phone), `per_page` (number), `enable_search` (switcher), `columns` (select 1–4)
 - Style controls: `primary_color`, `card_bg`, `text_color`, `card_typography`, `card_padding`, `card_border_radius`, `grid_gap`
 - Columns injected as inline CSS variable `--ldap-columns` on the widget wrapper class

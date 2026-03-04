@@ -11,7 +11,7 @@
  * purge()  — removes both the transient and the stale option (full reset).
  *            Use for manual cache clearing and on settings change.
  *
- * @package LDAP_Employee_Directory
+ * @package LDAP_Staff_Directory
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

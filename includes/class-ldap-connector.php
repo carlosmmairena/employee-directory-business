@@ -2,7 +2,7 @@
 /**
  * LDAP Connector — handles connection, binding, and user retrieval.
  *
- * @package LDAP_Employee_Directory
+ * @package LDAP_Staff_Directory
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
