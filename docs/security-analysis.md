@@ -1,8 +1,10 @@
 # Security Analysis — LDAP Staff Directory
 
-> Static analysis of source code at commit `97af113`.
+> Original static analysis of source code at commit `97af113`.
 > Scope: plugin code, WordPress integration, and infrastructure considerations for VPS cloud and on-premise deployments.
-> **No source code was modified during this analysis.**
+> **No source code was modified during the original analysis.**
+>
+> **Updated 2026-03-04** — reflects code changes shipped in v1.0.4. F-01 patched.
 
 ---
 
@@ -20,7 +22,7 @@
 
 | # | Title | Severity | Location |
 |---|---|---|---|
-| F-01 | Bind password stored in plaintext in `wp_options` | **High** | `class-admin.php`, `wp_options` table |
+| F-01 | Bind password stored in plaintext in `wp_options` | ~~**High**~~ **Patched v1.0.4** | `ldap-staff-directory.php`, `class-admin.php`, `class-ldap-connector.php` |
 | F-02 | `putenv('LDAPTLS_REQCERT=never')` modifies the global process environment | **High** | `class-ldap-connector.php:56` |
 | F-03 | SSL certificate verification can be disabled by any admin | **Medium** | `class-ldap-connector.php:54–58` |
 | F-04 | No rate limiting on the AJAX test-connection endpoint | **Medium** | `class-ajax.php:20` |
@@ -35,31 +37,54 @@
 
 ## 2. Application-Layer Findings
 
-### F-01 — Bind password stored in plaintext
+### F-01 — Bind password stored in plaintext ✅ Patched in v1.0.4
 
-**Severity:** High
-**File:** `includes/class-admin.php` → `sanitize_settings()` (line 167), stored via `update_option(LDAP_ED_OPTION_KEY, ...)`
+**Original Severity:** High → **Status: Patched**
+**Files changed:** `ldap-staff-directory.php`, `includes/class-admin.php`, `includes/class-ldap-connector.php`, `uninstall.php`
 
-**What happens:**
-The LDAP bind password is serialized into the `wp_options` row alongside all other plugin settings. Any code path that reads `get_option('ldap_ed_settings')` has direct access to it in plaintext.
+**Original issue:**
+The LDAP bind password was serialized into the `wp_options` row alongside all other plugin settings in plaintext. Any code path reading `get_option('ldap_ed_settings')` had direct access to it.
+
+**Fix implemented (v1.0.4):**
+The bind password is now encrypted at rest using **XSalsa20-Poly1305** (`sodium_crypto_secretbox`). The encryption key is derived on demand from WordPress's existing `AUTH_KEY` + `SECURE_AUTH_KEY` salts via BLAKE2b (`sodium_crypto_generichash`), with a plugin-specific domain prefix — zero new key storage required.
 
 ```php
-// class-admin.php — sanitize_settings()
-$clean['bind_pass'] = ! empty( $input['bind_pass'] )
-    ? $input['bind_pass']
+// ldap-staff-directory.php — key derivation
+function ldap_ed_derive_sodium_key(): string {
+    return sodium_crypto_generichash(
+        'ldap-staff-directory:v1:' . wp_salt( 'auth' ) . wp_salt( 'secure_auth' ),
+        '',
+        SODIUM_CRYPTO_SECRETBOX_KEYBYTES  // 32 bytes
+    );
+}
+
+// class-admin.php — encrypt on save
+$clean['bind_pass'] = '' !== $plain_pass
+    ? ldap_ed_encrypt_pass( $plain_pass )   // → 'sod::<base64(nonce+ciphertext+mac)>'
     : ( $existing['bind_pass'] ?? '' );
+
+// class-ldap-connector.php — decrypt before bind
+$bind_pass = ldap_ed_decrypt_pass( $this->settings['bind_pass'] );
 ```
 
-**Risk surface:**
-- Direct DB access (SQL client, compromised DB host, MySQL without TLS) exposes the credential immediately.
-- Any WordPress plugin with `get_option()` access can read it.
-- PHP error logs that dump `get_option()` results will include it in cleartext.
+**Stored format:** `sod::<base64( 24-byte nonce | XSalsa20 ciphertext | 16-byte Poly1305 MAC )>`
 
-**Mitigations (without code changes):**
-- Use a **dedicated, read-only LDAP service account** with search permissions scoped to the target OU only. Leaking a read-only, scoped account is far less critical than leaking a full bind DN with write permissions.
-- Enforce TLS on the MySQL connection (`require_secure_transport=ON`).
-- Restrict database access to `127.0.0.1` or a private network interface.
-- Enable WordPress's `DISALLOW_FILE_EDIT` and `DISALLOW_FILE_MODS` constants to reduce plugin attack surface.
+**Properties:**
+- **AEAD** — Poly1305 MAC detects DB-level tampering; `sodium_crypto_secretbox_open()` returns `false` on any bit modification.
+- **Authenticated** — ciphertext cannot be decrypted or forged without the derived key.
+- **Memory-safe** — `sodium_memzero()` wipes the key from PHP memory immediately after use.
+- **Backward-compatible** — values without the `sod::` prefix are treated as legacy plaintext and pass through unchanged until the admin next saves the password.
+
+**Salt rotation protection:**
+A SHA-256 fingerprint of `AUTH_KEY` is stored as `ldap_ed_salt_fingerprint`. If WordPress salts are regenerated (which changes the derived key):
+1. `ldap_ed_salts_have_changed()` detects the mismatch.
+2. An admin-only `notice-error` banner prompts re-entry of the bind password.
+3. `ldap_ed_decrypt_pass()` returns `''`; `bind()` returns a descriptive `WP_Error` instead of attempting an anonymous LDAP bind.
+4. The stale cache continues serving visitors transparently (existing resilience via `LDAP_ED_Cache::get_stale()`).
+
+**Remaining risk surface (unchanged):**
+- An attacker with **both** filesystem access (`wp-config.php` salts) **and** DB access can still re-derive the key and decrypt. This is the inherent boundary of server-side symmetric encryption — the same limitation applies to WordPress's own password hashing and any at-rest encryption scheme where key and data share the same server.
+- Using a **dedicated read-only LDAP service account** scoped to the target OU remains the most important complementary control: credential leakage yields only directory-read access, not write access.
 
 ---
 
@@ -229,9 +254,10 @@ The LDAP connection originates from the WordPress PHP process and terminates at 
 
 The bind password lives in `wp_options`. On cloud, consider:
 
-- **Environment variable approach:** Set `LDAP_ED_BIND_PASS` as a server environment variable and read it in `wp-config.php` or a `mu-plugin`. The plugin currently does not support this natively — it always reads from the DB option.
+- **v1.0.4 (implemented):** Bind password is now encrypted at rest using XSalsa20-Poly1305. The ciphertext in `wp_options` is no longer human-readable without the WP salt values. See F-01 for full details.
+- **Environment variable approach:** Set `LDAP_ED_BIND_PASS` as a server environment variable and read it in `wp-config.php` or a `mu-plugin`. The plugin does not natively support this — it reads from the encrypted DB option. This remains a complementary option for high-security deployments.
 - **AWS Secrets Manager / Azure Key Vault / HashiCorp Vault:** Mount the secret as an env variable at container/instance startup.
-- **Minimum viable improvement (no code change):** Use a dedicated read-only LDAP service account scoped only to the search OU. Credential compromise then yields only directory-read access, not directory-write.
+- **Minimum viable improvement:** Use a dedicated read-only LDAP service account scoped only to the search OU. Credential compromise then yields only directory-read access, not directory-write.
 
 #### WordPress hardening for cloud
 
@@ -357,6 +383,7 @@ The following security controls are correctly implemented and require no changes
 | Admin-only AJAX | Only `wp_ajax_*` hooks registered, never `wp_ajax_nopriv_*` |
 | Output escaping | `esc_html()`, `esc_attr()` used consistently throughout templates and `render_field_*` methods |
 | Password never echoed | `bind_pass` field always renders with `value=""` — saved value never returned to the browser |
+| Bind password encrypted at rest | v1.0.4: XSalsa20-Poly1305 encryption via `sodium_crypto_secretbox`. Key derived from WP AUTH salts using BLAKE2b. AEAD — tampering detected. Salt rotation surfaced via admin notice before bind failure. Stale cache preserved for visitor resilience. |
 | LDAP filter injection | Search filter is fully static (`(&(objectClass=person)(mail=*))`); no user input enters it |
 | Direct file access | `if (!defined('ABSPATH')) exit;` present in every PHP file |
 | Uninstall cleanup | `uninstall.php` correctly gated with `WP_UNINSTALL_PLUGIN`; cleans up options and transients including multisite |
@@ -367,4 +394,4 @@ The following security controls are correctly implemented and require no changes
 
 ---
 
-*Analysis produced on 2026-02-26. Re-run if the codebase is substantially modified.*
+*Original analysis: 2026-02-26 at commit `97af113`. Updated 2026-03-04 to reflect v1.0.4 (F-01 patched). Re-run if the codebase is substantially modified.*
