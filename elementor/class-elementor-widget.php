@@ -207,12 +207,8 @@ class LDAP_ED_Elementor_Widget extends \Elementor\Widget_Base {
 		$search   = ( 'true' === $settings['enable_search'] ) ? 'true' : 'false';
 		$per_page = absint( $settings['per_page'] ?? 20 );
 
-		// Inject column variable scoped to this widget instance.
-		printf(
-			'<style>.elementor-element-%1$s .ldap-directory-wrap{--ldap-columns:%2$d}</style>',
-			esc_attr( $this->get_id() ),
-			absint( $columns )
-		);
+		// Inject column variable on the widget wrapper — cascades to .ldap-directory-wrap inside.
+		$this->add_render_attribute( '_wrapper', 'style', '--ldap-columns:' . absint( $columns ) . ';' );
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo do_shortcode(

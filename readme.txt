@@ -4,7 +4,7 @@ Tags:              ldap, directory, wpbeaverbuilder, staff, elementor
 Requires at least: 5.8
 Tested up to:      6.9
 Requires PHP:      7.4
-Stable tag:        1.0.4
+Stable tag:        1.0.5
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,6 +83,9 @@ By default 60 minutes. Change the TTL under **Settings → LDAP Directory → Ca
 4. Beaver Builder module tabs
 
 == Changelog ==
+
+= 1.0.5 =
+* Fix: Replace inline `<style>` tags in Elementor widget and Beaver Builder module with `wp_add_inline_style()` and Elementor's native `add_render_attribute()` API to comply with WordPress.org plugin guidelines (Guideline 11 / wp_enqueue best practices).
 
 = 1.0.4 =
 * Security: LDAP bind password is now encrypted at rest using libsodium (XSalsa20-Poly1305). The encryption key is derived from WordPress's built-in security keys — no configuration required.
