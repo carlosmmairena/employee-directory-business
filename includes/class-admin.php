@@ -136,15 +136,6 @@ class LDAP_ED_Admin {
 			'ldap_ed_section_display'
 		);
 
-		add_settings_field(
-			'ldap_ed_custom_css',
-			__( 'Custom CSS', 'ldap-staff-directory' ),
-			array( $this, 'render_field_custom_css' ),
-			'ldap-staff-directory',
-			'ldap_ed_section_display',
-			array( 'label_for' => 'ldap_ed_custom_css' )
-		);
-
 		// --- Cache section ---
 		add_settings_section(
 			'ldap_ed_section_cache',
@@ -177,7 +168,6 @@ class LDAP_ED_Admin {
 		$clean['exclude_disabled']  = isset( $input['exclude_disabled'] ) ? '1' : '0';
 		$clean['per_page']          = absint( $input['per_page'] ?? 20 );
 		$clean['enable_search'] = isset( $input['enable_search'] ) ? '1' : '0';
-		$clean['custom_css']    = wp_strip_all_tags( $input['custom_css'] ?? '' );
 		$clean['cache_ttl']     = absint( $input['cache_ttl'] ?? 60 );
 
 		// Allowed field keys.
@@ -432,17 +422,6 @@ class LDAP_ED_Admin {
 			esc_attr( LDAP_ED_OPTION_KEY ),
 			checked( '1', $this->get_option( 'enable_search', '1' ), false ),
 			esc_html__( 'Show search field above the directory', 'ldap-staff-directory' )
-		);
-	}
-
-	/** @param array $args Settings field args passed by the Settings API. */
-	public function render_field_custom_css( $args = array() ) {
-		printf(
-			'<textarea id="%1$s" name="%2$s[custom_css]" rows="8" class="large-text code">%3$s</textarea><p class="description">%4$s</p>',
-			esc_attr( $args['label_for'] ),
-			esc_attr( LDAP_ED_OPTION_KEY ),
-			esc_textarea( $this->get_option( 'custom_css' ) ),
-			esc_html__( 'Custom CSS appended to the directory stylesheet.', 'ldap-staff-directory' )
 		);
 	}
 

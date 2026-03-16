@@ -4,7 +4,7 @@ Tags:              ldap, directory, wpbeaverbuilder, staff, elementor
 Requires at least: 5.8
 Tested up to:      6.9
 Requires PHP:      7.4
-Stable tag:        1.0.5
+Stable tag:        1.0.6
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,7 +21,7 @@ Connects to an LDAPS server and displays an employee directory from a specific O
 * Extracts: full name, email, job title, department
 * Shortcode `[ldap_directory]` usable in any post, page or widget
 * Native Elementor widget with full style controls
-* Native Beaver Builder module with General / Style / Advanced tabs
+* Native Beaver Builder module with General and Style tabs
 * Real-time client-side search (no page reload)
 * Client-side pagination with configurable items per page
 * Transient-based cache with configurable TTL and one-click invalidation
@@ -29,7 +29,6 @@ Connects to an LDAPS server and displays an employee directory from a specific O
 * SSL certificate verification toggle (supports self-signed certs)
 * Optional CA certificate file path
 * CSS custom properties for easy theme integration
-* Custom CSS textarea in admin panel and in page builder controls
 * Multisite compatible (per-site settings)
 
 = Requirements =
@@ -68,7 +67,7 @@ Yes. In the admin panel, check or uncheck the fields you want. You can also over
 
 = How do I change the card layout or colors? =
 
-Use the **Custom CSS** textarea in the admin panel, or override the CSS variables:
+Override the CSS variables in your theme's stylesheet:
 `--ldap-primary-color`, `--ldap-card-bg`, `--ldap-columns`, etc.
 
 = How long is data cached? =
@@ -83,6 +82,10 @@ By default 60 minutes. Change the TTL under **Settings → LDAP Directory → Ca
 4. Beaver Builder module tabs
 
 == Changelog ==
+
+= 1.0.6 =
+* Fix: Removed custom CSS input feature (admin panel textarea and Beaver Builder Advanced tab) per WordPress.org guideline prohibiting arbitrary CSS/JS/PHP injection.
+* Fix: Added `phpcs:ignore` annotation with justification to `echo do_shortcode()` output in Beaver Builder frontend template; changed `per_page` shortcode argument from `esc_attr()` to `absint()` for correct integer escaping.
 
 = 1.0.5 =
 * Fix: Replace inline `<style>` tags in Elementor widget and Beaver Builder module with `wp_add_inline_style()` and Elementor's native `add_render_attribute()` API to comply with WordPress.org plugin guidelines (Guideline 11 / wp_enqueue best practices).
@@ -116,6 +119,9 @@ By default 60 minutes. Change the TTL under **Settings → LDAP Directory → Ca
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.0.6 =
+The custom CSS textarea in the admin panel and the Beaver Builder Advanced tab have been removed. To style the directory, use CSS custom properties (`--ldap-primary-color`, `--ldap-card-bg`, `--ldap-columns`, etc.) in your theme's stylesheet instead.
 
 = 1.0.0 =
 Initial release — no upgrade steps required.

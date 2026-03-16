@@ -51,12 +51,6 @@ class LDAP_ED_Shortcode {
 	private function enqueue_assets() {
 		wp_enqueue_style( 'ldap-ed-public' );
 		wp_enqueue_script( 'ldap-ed-public' );
-
-		$settings   = get_option( LDAP_ED_OPTION_KEY, array() );
-		$custom_css = $settings['custom_css'] ?? '';
-		if ( ! empty( $custom_css ) ) {
-			wp_add_inline_style( 'ldap-ed-public', $custom_css );
-		}
 	}
 
 	/**

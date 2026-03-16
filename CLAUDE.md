@@ -72,7 +72,6 @@ readme.txt                           # WordPress.org readme
 | `ldap-ed-admin` | CSS + JS | JS depends on `jquery` | `ldapEdAdmin` → `{ajaxUrl, nonce, i18n:{testing, clearing, cacheCleared}}` |
 | `ldap-ed-public` | CSS + JS | None | — |
 
-Custom CSS from the `custom_css` setting is injected via `wp_add_inline_style('ldap-ed-public', ...)`.
 
 ## Class API Reference
 
@@ -129,7 +128,7 @@ public function clear_cache(): void       // wp_send_json_success/error
 ```php
 public function register_assets(): void             // registers CSS/JS; enqueues early if shortcode in post_content
 public function render( $atts ): string             // enqueues assets as fallback for page builders
-private function enqueue_assets(): void             // enqueues registered CSS/JS + injects custom CSS inline
+private function enqueue_assets(): void             // enqueues registered CSS/JS
 private function get_users( array $settings ): array|WP_Error
 ```
 
@@ -170,7 +169,6 @@ Settings are split into three sections: `ldap_ed_section_connection`, `ldap_ed_s
 | `fields` | display | array | `['name','email','title','department']` | Intersect with allowed list |
 | `per_page` | display | int | `20` | `absint()` |
 | `enable_search` | display | `'0'`/`'1'` | `'1'` | Binary |
-| `custom_css` | display | string | `''` | `wp_strip_all_tags()` |
 | `cache_ttl` | cache | int | `60` | `absint()` (minutes) |
 
 **Allowed field values:** `name`, `email`, `title`, `department`, `phone`. Any other value is silently discarded.
@@ -237,8 +235,7 @@ Attributes override admin defaults. Shortcode attributes: `fields` (comma-separa
 **Beaver Builder module** (`LDAP_ED_BB_Module extends FLBuilderModule`):
 - Fields tab: `fields_to_show` (name, email, title, department, phone), `per_page`, `enable_search`, `columns`
 - Style tab: colors, `font_size`, `gap`, `border_radius`
-- Advanced tab: `custom_css` (code field, CSS mode) — sanitized via `wp_strip_all_tags()` in template
-- CSS variables scoped per node: `.fl-node-{uid}` selector in inline `<style>` block
+- CSS variables scoped per node via `wp_add_inline_style()`: `.fl-node-{uid}` selector
 
 ## Coding Standards
 
@@ -260,7 +257,7 @@ Follow **WordPress Coding Standards (WPCS)**:
   ```
 - All variables declared in template/included files (`public/views/directory.php`, `beaver-builder/frontend.php`) must use the `ldap_ed_` prefix. These files are included in global scope by WordPress/page builders, so unprefixed local variables trigger the WPCS global-variable naming rule. Exception: variables injected by the page builder itself (`$settings`, `$module` in BB; `$settings` in Elementor) must keep their original names.
 - For integer values in `printf()`/`sprintf()` output, wrap with `absint()` explicitly — `%d` format alone does not satisfy WPCS escaping checks.
-- For CSS output inside `<style>` blocks (e.g., `custom_css` already sanitized via `wp_strip_all_tags()` on save), use `// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped` with an inline explanation. There is no WordPress-native CSS-escaping function; `esc_html()` would break CSS selectors containing `>` or `"`.
+- For `echo do_shortcode(...)` output, use `// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped` with an inline explanation confirming that shortcode attribute values are individually escaped before building the shortcode string.
 - Do not call `load_plugin_textdomain()` — WordPress.org-hosted plugins load translations automatically since WP 4.6. The `Text Domain` header in the plugin file is sufficient.
 - Do not add a `Domain Path` header unless the plugin ships local `.po`/`.mo` translation files in the repository. A header pointing to a non-existent folder triggers a plugin-check error.
 - Never echo the bind password back to the admin form. Blank submission = keep the existing saved value.

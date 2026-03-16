@@ -135,24 +135,6 @@ FLBuilder::register_module(
 			),
 		),
 
-		// ── Advanced tab ─────────────────────────────────────────────────────
-		'advanced' => array(
-			'title'    => __( 'Advanced', 'ldap-staff-directory' ),
-			'sections' => array(
-				'custom_css_section' => array(
-					'title'  => __( 'Custom CSS', 'ldap-staff-directory' ),
-					'fields' => array(
-						'custom_css' => array(
-							'type'  => 'code',
-							'label' => __( 'Custom CSS', 'ldap-staff-directory' ),
-							'mode'  => 'css',
-							'rows'  => 10,
-						),
-					),
-				),
-			),
-		),
-
 	)
 );
 
@@ -207,11 +189,6 @@ class LDAP_ED_BB_Module extends FLBuilderModule {
 		$css .= '--ldap-card-radius:' . absint( $border_radius ) . 'px;';
 		$css .= '--ldap-columns:' . absint( $columns ) . ';';
 		$css .= '}';
-
-		if ( ! empty( $settings->custom_css ) ) {
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CSS sanitized on save via wp_strip_all_tags(); esc_html() would break selectors.
-			$css .= wp_strip_all_tags( $settings->custom_css );
-		}
 
 		wp_add_inline_style( 'ldap-ed-public', $css );
 	}
