@@ -28,7 +28,6 @@ Connects to an LDAPS server and displays an employee directory from a specific O
 * Admin panel under **Settings → LDAP Directory**
 * SSL certificate verification toggle (supports self-signed certs)
 * Optional CA certificate file path
-* CSS custom properties for easy theme integration
 * Multisite compatible (per-site settings)
 
 = Requirements =
@@ -64,11 +63,6 @@ Use `ldaps://your-dc.domain.com` as the server, port `636`, and a service accoun
 
 Yes. In the admin panel, check or uncheck the fields you want. You can also override per shortcode:
 `[ldap_directory fields="name,title"]`
-
-= How do I change the card layout or colors? =
-
-Override the CSS variables in your theme's stylesheet:
-`--ldap-primary-color`, `--ldap-card-bg`, `--ldap-columns`, etc.
 
 = How long is data cached? =
 
