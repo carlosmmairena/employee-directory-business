@@ -1,25 +1,47 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-Example:
-  context: |
-    Tech stack: WordPress, LDAPS
-    We use conventional commits
-    Domain: WordPress Plugin LDAP Staff Directory
-    Idioma: Español
-    Todos los artefactos deben escribirse en español, el código y sus comentarios deben mantenerse en inglés (en-us).
+context: |
+  WordPress plugin (GPL v2) — directorio de empleados desde LDAP/LDAPS.
+  Soporta shortcode nativo, Elementor y Beaver Builder.
+  Versión actual: PHP 7.4+ | WP 5.8+
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
+  Stack: PHP + vanilla JS + CSS custom properties. Sin herramientas de build.
+
+  Convenciones clave (WPCS):
+  - Prefijo: ldap_ed_ / LDAP_ED_ en todo (funciones, clases, constantes, opciones)
+  - Escapar salida: esc_html(), esc_attr(), esc_url() | Sanitizar: sanitize_text_field(), absint()
+  - WP_Error para errores — nunca excepciones | Nonces + manage_options en todo AJAX
+  - Silenciar @ldap_* | Strings con __() + text domain ldap-staff-directory
+
+  Arquitectura:
+  - Bootstrap: plugins_loaded → ldap_ed_init()
+  - Caché: WP Transients (TTL) + WP option permanente (stale fallback)
+    flush() preserva stale | purge() elimina ambos — usar purge() al guardar settings
+  - Bind password cifrado con Sodium XSalsa20-Poly1305
+  - Paginación y búsqueda 100% client-side (vanilla JS)
+  - Page builders delegan a do_shortcode('[ldap_directory ...]')
+
+  Diseño: corporate badges / ID cards. Avatar = círculo de iniciales, color determinístico.
+  Tokens CSS via custom properties. Unidad base: 4px. Ver .interface-design/system.md.
+
+  Idioma: artefactos en español | código y commits en inglés (conventional commits)
+
 rules:
   proposal:
     - Always include a "Non-goals" section
+    - Note cache impact: flush (preserves stale) vs purge (removes both)
+    - Mark if change is user-facing (requires version bump)
   specs:
     - Use Given/When/Then format
+    - Note WPCS constraints that affect behavior (escaping, nonces, sanitization)
   design:
     - Follow WordPress Coding Standards (WPCS)
     - Include sequence diagrams for complex flows
-    - Always use the /frontend-design skill for UI/UX features
-    - Always use the /wordpress-pro skill
+    - Use /frontend-design skill for UI/UX features
+    - Use /wordpress-pro skill
+    - Reference .interface-design/system.md tokens for any UI change
+    - Follow the Adding a New Feature Checklist in CLAUDE.md
+  tasks:
+    - For user-facing changes: include task to bump LDAP_ED_VERSION + Stable tag in readme.txt
+    - End with a suggested conventional commit message (feat/fix/refactor + scope)
+    - Reference specific file paths where relevant
