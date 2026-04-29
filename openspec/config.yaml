@@ -1,0 +1,25 @@
+schema: spec-driven
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+Example:
+  context: |
+    Tech stack: WordPress, LDAPS
+    We use conventional commits
+    Domain: WordPress Plugin LDAP Staff Directory
+    Idioma: Español
+    Todos los artefactos deben escribirse en español, el código y sus comentarios deben mantenerse en inglés (en-us).
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+rules:
+  proposal:
+    - Always include a "Non-goals" section
+  specs:
+    - Use Given/When/Then format
+  design:
+    - Follow WordPress Coding Standards (WPCS)
+    - Include sequence diagrams for complex flows
+    - Always use the /frontend-design skill for UI/UX features
+    - Always use the /wordpress-pro skill
