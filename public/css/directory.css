@@ -34,6 +34,74 @@
 	color: var( --ldap-text-color );
 }
 
+/* ── Department filter bar ──────────────────────────────────────────────── */
+
+.ldap-dept-filters {
+	display: flex;
+	flex-wrap: nowrap;
+	gap: 8px;
+	overflow-x: auto;
+	white-space: nowrap;
+	padding-bottom: 4px;
+	margin-bottom: 24px;
+	/* Hide scrollbar visually while keeping it functional */
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+.ldap-dept-filters::-webkit-scrollbar {
+	display: none;
+}
+
+.ldap-dept-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 5px 14px;
+	font-size: .82em;
+	font-family: inherit;
+	font-weight: 500;
+	color: var( --ldap-text-color );
+	background: transparent;
+	border: 1px solid var( --ldap-card-border );
+	border-radius: 20px;
+	text-decoration: none;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: border-color .15s ease, background-color .15s ease, color .15s ease;
+	flex-shrink: 0;
+}
+
+a.ldap-dept-chip:hover {
+	border-color: var( --ldap-primary-color );
+	color: var( --ldap-primary-color );
+}
+
+.ldap-dept-chip.is-active {
+	background: var( --ldap-primary-color );
+	border-color: var( --ldap-primary-color );
+	color: #fff;
+	cursor: default;
+}
+
+.ldap-dept-chip-clear {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin-left: 2px;
+	font-size: 1.1em;
+	font-weight: 700;
+	color: inherit;
+	text-decoration: none;
+	opacity: .75;
+	cursor: pointer;
+	transition: opacity .15s ease;
+}
+
+.ldap-dept-chip-clear:hover {
+	opacity: 1;
+}
+
 /* ── Search ─────────────────────────────────────────────────────────────── */
 
 .ldap-search-wrap {
@@ -181,6 +249,20 @@
 	opacity: .82;
 }
 
+.ldap-phone {
+	margin-top: 4px;
+	font-size: .88em;
+	color: var( --ldap-primary-color );
+	word-break: break-all;
+	text-decoration: none;
+	transition: opacity .15s ease;
+}
+
+.ldap-phone:hover {
+	text-decoration: underline;
+	opacity: .82;
+}
+
 /* ── No-results ─────────────────────────────────────────────────────────── */
 
 .ldap-no-results {
@@ -235,9 +317,11 @@
 	outline-offset: 2px;
 }
 
-.ldap-btn:disabled {
+.ldap-btn:disabled,
+.ldap-btn[aria-disabled="true"] {
 	opacity: .38;
 	cursor: default;
+	pointer-events: none;
 	border-color: var( --ldap-card-border );
 	color: var( --ldap-muted-color );
 }

@@ -3,10 +3,19 @@
  * Public directory template.
  *
  * Variables available from class-shortcode.php:
- *   $users         — array of user arrays (name, email, title, department, phone)
+ *   $users         — array of user arrays for the current page
  *   $fields        — array of field keys to display
  *   $per_page      — int, items per page
- *   $enable_search — bool, show search input
+ *   $enable_search — bool, show search input and filter bar
+ *   $departments   — array [ 'Department' => count ] sorted alphabetically
+ *   $current_dept  — string, active department filter ('' = none)
+ *   $search_query  — string, active search term
+ *   $current_page  — int, current page number
+ *   $total_pages   — int, total page count
+ *   $total_count   — int, total filtered employee count
+ *   $all_count     — int, total unfiltered employee count
+ *   $prev_url      — string|null, URL for previous page (null = disabled)
+ *   $next_url      — string|null, URL for next page (null = disabled)
  *
  * @package LDAP_Staff_Directory
  */
@@ -22,25 +31,96 @@ $ldap_avatar_palette = array(
 	'#1a7bbf', '#8e44ad',
 );
 ?>
-<div
-	class="ldap-directory-wrap"
-	data-per-page="<?php echo esc_attr( $per_page ); ?>"
-	data-total="<?php echo esc_attr( count( $users ) ); ?>"
->
+<div class="ldap-directory-wrap">
 
 	<?php if ( $enable_search ) : ?>
 	<div class="ldap-search-wrap">
-		<label for="ldap-search-input" class="screen-reader-text">
-			<?php esc_html_e( 'Search employees', 'ldap-staff-directory' ); ?>
-		</label>
-		<input
-			type="search"
-			id="ldap-search-input"
-			class="ldap-search"
-			placeholder="<?php esc_attr_e( 'Search employee…', 'ldap-staff-directory' ); ?>"
-			aria-label="<?php esc_attr_e( 'Search employee', 'ldap-staff-directory' ); ?>"
+		<form
+			method="get"
+			action="<?php echo esc_url( remove_query_arg( array( 'ldap_page', 'ldap_search', 'ldap_dept' ) ) ); ?>"
+			class="ldap-search-form"
+			role="search"
 		>
+			<label for="ldap-search-input" class="screen-reader-text">
+				<?php esc_html_e( 'Search employees', 'ldap-staff-directory' ); ?>
+			</label>
+			<?php if ( '' !== $current_dept ) : ?>
+			<input type="hidden" name="ldap_dept" value="<?php echo esc_attr( $current_dept ); ?>">
+			<?php endif; ?>
+			<input
+				type="search"
+				id="ldap-search-input"
+				name="ldap_search"
+				class="ldap-search"
+				placeholder="<?php esc_attr_e( 'Search employee…', 'ldap-staff-directory' ); ?>"
+				aria-label="<?php esc_attr_e( 'Search employee', 'ldap-staff-directory' ); ?>"
+				value="<?php echo esc_attr( $search_query ); ?>"
+			>
+		</form>
 	</div>
+
+	<?php if ( count( $departments ) >= 2 ) : ?>
+	<div class="ldap-dept-filters" role="list" aria-label="<?php esc_attr_e( 'Filter by department', 'ldap-staff-directory' ); ?>">
+
+		<?php // "All" chip — active when no department filter is set. ?>
+		<?php $ldap_ed_all_url = esc_url( add_query_arg( 'ldap_page', 1, remove_query_arg( array( 'ldap_dept', 'ldap_page' ) ) ) ); ?>
+		<?php if ( '' === $current_dept ) : ?>
+		<span class="ldap-dept-chip is-active" role="listitem" aria-pressed="true">
+			<?php
+			printf(
+				/* translators: %s: total employee count */
+				esc_html__( 'All (%s)', 'ldap-staff-directory' ),
+				absint( $all_count )
+			);
+			?>
+		</span>
+		<?php else : ?>
+		<a
+			href="<?php echo $ldap_ed_all_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- already passed through esc_url() above ?>"
+			class="ldap-dept-chip"
+			role="listitem"
+			aria-pressed="false"
+		>
+			<?php
+			printf(
+				/* translators: %s: total employee count */
+				esc_html__( 'All (%s)', 'ldap-staff-directory' ),
+				absint( $all_count )
+			);
+			?>
+		</a>
+		<?php endif; ?>
+
+		<?php foreach ( $departments as $ldap_ed_dept_name => $ldap_ed_dept_count ) : ?>
+			<?php
+			$ldap_ed_is_active  = ( 0 === strcasecmp( $ldap_ed_dept_name, $current_dept ) );
+			$ldap_ed_chip_url   = esc_url( add_query_arg( array( 'ldap_dept' => $ldap_ed_dept_name, 'ldap_page' => 1 ) ) );
+			$ldap_ed_clear_url  = esc_url( add_query_arg( 'ldap_page', 1, remove_query_arg( array( 'ldap_dept', 'ldap_page' ) ) ) );
+			$ldap_ed_chip_label = esc_html( $ldap_ed_dept_name ) . ' (' . absint( $ldap_ed_dept_count ) . ')';
+			?>
+			<?php if ( $ldap_ed_is_active ) : ?>
+			<span class="ldap-dept-chip is-active" role="listitem" aria-pressed="true">
+				<?php echo $ldap_ed_chip_label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_html() + absint() applied above ?>
+				<a
+					href="<?php echo $ldap_ed_clear_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- already passed through esc_url() above ?>"
+					class="ldap-dept-chip-clear"
+					aria-label="<?php esc_attr_e( 'Clear department filter', 'ldap-staff-directory' ); ?>"
+				>×</a>
+			</span>
+			<?php else : ?>
+			<a
+				href="<?php echo $ldap_ed_chip_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- already passed through esc_url() above ?>"
+				class="ldap-dept-chip"
+				role="listitem"
+				aria-pressed="false"
+			>
+				<?php echo $ldap_ed_chip_label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_html() + absint() applied above ?>
+			</a>
+			<?php endif; ?>
+		<?php endforeach; ?>
+
+	</div>
+	<?php endif; ?>
 	<?php endif; ?>
 
 	<div class="ldap-directory-grid" aria-live="polite">
@@ -65,14 +145,7 @@ $ldap_avatar_palette = array(
 				$ldap_color_idx = abs( crc32( $ldap_name ) ) % count( $ldap_avatar_palette );
 				$ldap_avatar_bg = $ldap_avatar_palette[ $ldap_color_idx ];
 			?>
-			<article
-				class="ldap-staff-card"
-				data-name="<?php echo esc_attr( strtolower( $ldap_ed_user['name'] ) ); ?>"
-				data-email="<?php echo esc_attr( strtolower( $ldap_ed_user['email'] ) ); ?>"
-				data-title="<?php echo esc_attr( strtolower( $ldap_ed_user['title'] ) ); ?>"
-				data-department="<?php echo esc_attr( strtolower( $ldap_ed_user['department'] ) ); ?>"
-				data-phone="<?php echo esc_attr( strtolower( $ldap_ed_user['phone'] ?? '' ) ); ?>"
-			>
+			<article class="ldap-staff-card">
 				<div
 					class="ldap-card-avatar"
 					aria-hidden="true"
@@ -110,18 +183,59 @@ $ldap_avatar_palette = array(
 
 	</div><!-- /.ldap-directory-grid -->
 
-	<p class="ldap-no-results ldap-no-results--search" style="display:none" aria-live="polite">
-		<?php esc_html_e( 'No employees match your search.', 'ldap-staff-directory' ); ?>
-	</p>
-
+	<?php if ( $total_pages > 1 ) : ?>
 	<nav class="ldap-pagination" aria-label="<?php esc_attr_e( 'Directory pagination', 'ldap-staff-directory' ); ?>">
-		<button type="button" class="ldap-btn ldap-prev" disabled>
+
+		<?php if ( null !== $prev_url ) : ?>
+		<a href="<?php echo esc_url( $prev_url ); ?>" class="ldap-btn ldap-prev">
 			&laquo; <?php esc_html_e( 'Previous', 'ldap-staff-directory' ); ?>
-		</button>
-		<span class="ldap-page-info"></span>
-		<button type="button" class="ldap-btn ldap-next">
+		</a>
+		<?php else : ?>
+		<span class="ldap-btn ldap-prev" aria-disabled="true">
+			&laquo; <?php esc_html_e( 'Previous', 'ldap-staff-directory' ); ?>
+		</span>
+		<?php endif; ?>
+
+		<span class="ldap-page-info">
+		<?php if ( $total_count > 0 ) :
+			$ldap_ed_from = absint( ( $current_page - 1 ) * $per_page + 1 );
+			$ldap_ed_to   = absint( min( $current_page * $per_page, $total_count ) );
+			if ( '' !== $current_dept ) :
+				echo esc_html(
+					sprintf(
+						/* translators: 1: first record number on page, 2: last record number on page, 3: total filtered records, 4: department name */
+						__( 'Showing %1$s–%2$s of %3$s in %4$s', 'ldap-staff-directory' ),
+						absint( $ldap_ed_from ),
+						absint( $ldap_ed_to ),
+						absint( $total_count ),
+						$current_dept
+					)
+				);
+			else :
+				echo esc_html(
+					sprintf(
+						/* translators: 1: first record number on page, 2: last record number on page, 3: total records */
+						__( 'Showing %1$s–%2$s of %3$s', 'ldap-staff-directory' ),
+						absint( $ldap_ed_from ),
+						absint( $ldap_ed_to ),
+						absint( $total_count )
+					)
+				);
+			endif;
+		endif; ?>
+		</span>
+
+		<?php if ( null !== $next_url ) : ?>
+		<a href="<?php echo esc_url( $next_url ); ?>" class="ldap-btn ldap-next">
 			<?php esc_html_e( 'Next', 'ldap-staff-directory' ); ?> &raquo;
-		</button>
+		</a>
+		<?php else : ?>
+		<span class="ldap-btn ldap-next" aria-disabled="true">
+			<?php esc_html_e( 'Next', 'ldap-staff-directory' ); ?> &raquo;
+		</span>
+		<?php endif; ?>
+
 	</nav>
+	<?php endif; ?>
 
 </div><!-- /.ldap-directory-wrap -->

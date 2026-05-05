@@ -18,7 +18,6 @@ context: |
   - Caché: WP Transients (TTL) + WP option permanente (stale fallback)
     flush() preserva stale | purge() elimina ambos — usar purge() al guardar settings
   - Bind password cifrado con Sodium XSalsa20-Poly1305
-  - Paginación y búsqueda 100% client-side (vanilla JS)
   - Page builders delegan a do_shortcode('[ldap_directory ...]')
 
   Diseño: corporate badges / ID cards. Avatar = círculo de iniciales, color determinístico.

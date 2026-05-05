@@ -4,7 +4,7 @@ Tags:              ldap, directory, wpbeaverbuilder, staff, elementor
 Requires at least: 5.8
 Tested up to:      6.9
 Requires PHP:      7.4
-Stable tag:        1.0.6
+Stable tag:        1.1.0
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,6 +76,12 @@ By default 60 minutes. Change the TTL under **Settings → LDAP Directory → Ca
 4. Beaver Builder module tabs
 
 == Changelog ==
+
+= 1.1.0 =
+* Feature: Department filter bar — dynamically generated chips above the directory grid. Clicking a chip filters employees by department with horizontal scroll for 15+ departments.
+* Feature: Server-side pagination and search — filtering and pagination now processed in PHP over the WordPress cache; the DOM contains only the current page of results (no more 300+ hidden elements).
+* Improvement: Pagination now shows "Showing X–Y of Z" (and "Showing X–Y of Z in Department" when filtered) instead of the previous "1 / N" format.
+* Fix: Added missing `.ldap-phone` CSS rules — phone links now display consistently with email links.
 
 = 1.0.6 =
 * Fix: Removed custom CSS input feature (admin panel textarea and Beaver Builder Advanced tab) per WordPress.org guideline prohibiting arbitrary CSS/JS/PHP injection.

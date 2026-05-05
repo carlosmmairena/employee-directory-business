@@ -45,7 +45,7 @@ class LDAP_ED_Shortcode {
 	}
 
 	/**
-	 * Enqueue the registered assets and inject any custom CSS.
+	 * Enqueue the registered assets.
 	 * Safe to call multiple times — WordPress ignores duplicate enqueues.
 	 */
 	private function enqueue_assets() {
@@ -83,21 +83,155 @@ class LDAP_ED_Shortcode {
 			$allowed_fields
 		);
 
-		// Retrieve users (from cache or live LDAP).
-		$users = $this->get_users( $settings );
+		$per_page      = max( 1, absint( $atts['per_page'] ) );
+		$enable_search = filter_var( $atts['search'], FILTER_VALIDATE_BOOLEAN );
 
-		if ( is_wp_error( $users ) ) {
-			return '<p class="ldap-ed-error">' . esc_html( $users->get_error_message() ) . '</p>';
+		// Read and sanitize query params for server-side filtering and pagination.
+		$query_params = $this->get_query_params();
+		$search_query = $query_params['search'];
+		$current_dept = $query_params['dept'];
+		$current_page = $query_params['page'];
+
+		// Retrieve full user list from cache or LDAP.
+		$all_users = $this->get_users( $settings );
+		if ( is_wp_error( $all_users ) ) {
+			return '<p class="ldap-ed-error">' . esc_html( $all_users->get_error_message() ) . '</p>';
 		}
 
-		// Build data attributes for the JS layer.
-		$per_page      = absint( $atts['per_page'] );
-		$enable_search = filter_var( $atts['search'], FILTER_VALIDATE_BOOLEAN );
+		// Extract department list from the full (unfiltered) set for correct chip counts.
+		$departments = $this->extract_departments( $all_users );
+		$all_count   = count( $all_users );
+
+		// Apply department and search filters in PHP.
+		$filtered_users = $this->filter_users( $all_users, $search_query, $current_dept );
+
+		// Paginate the filtered result.
+		$pagination   = $this->paginate_users( $filtered_users, $current_page, $per_page );
+		$users        = $pagination['users'];
+		$total_count  = $pagination['total'];
+		$total_pages  = $pagination['total_pages'];
+		$current_page = $pagination['current_page']; // may be clamped if out of range
+
+		// Build Previous / Next URLs (null when the button should be disabled).
+		$prev_url = $current_page > 1 ? $this->build_nav_url( $current_page - 1 ) : null;
+		$next_url = $current_page < $total_pages ? $this->build_nav_url( $current_page + 1 ) : null;
 
 		ob_start();
 		include LDAP_ED_DIR . 'public/views/directory.php';
 		return ob_get_clean();
 	}
+
+	// -------------------------------------------------------------------------
+	// Server-side filtering / pagination helpers
+
+	/**
+	 * Read and sanitize the ldap_page, ldap_search, and ldap_dept query params.
+	 *
+	 * @return array { page: int, search: string, dept: string }
+	 */
+	private function get_query_params(): array {
+		$page   = max( 1, absint( $_GET['ldap_page'] ?? 1 ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$search = sanitize_text_field( wp_unslash( $_GET['ldap_search'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$dept   = sanitize_text_field( wp_unslash( $_GET['ldap_dept'] ?? '' ) );   // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return compact( 'page', 'search', 'dept' );
+	}
+
+	/**
+	 * Filter users by department and/or search query.
+	 *
+	 * @param array  $users  Full user array from cache.
+	 * @param string $search Search string (empty = no filter).
+	 * @param string $dept   Department name (empty = no filter).
+	 * @return array Filtered array (re-indexed).
+	 */
+	private function filter_users( array $users, string $search, string $dept ): array {
+		if ( '' !== $dept ) {
+			$users = array_values(
+				array_filter(
+					$users,
+					static function ( $user ) use ( $dept ) {
+						return 0 === strcasecmp( trim( $user['department'] ?? '' ), $dept );
+					}
+				)
+			);
+		}
+
+		if ( '' !== $search ) {
+			$users = array_values(
+				array_filter(
+					$users,
+					static function ( $user ) use ( $search ) {
+						foreach ( array( 'name', 'email', 'title', 'department', 'phone' ) as $field ) {
+							if ( false !== stripos( $user[ $field ] ?? '', $search ) ) {
+								return true;
+							}
+						}
+						return false;
+					}
+				)
+			);
+		}
+
+		return $users;
+	}
+
+	/**
+	 * Extract unique, non-empty departments from all users with their employee counts.
+	 *
+	 * @param array $all_users Full (unfiltered) user array.
+	 * @return array Associative array [ 'Department Name' => count ] sorted alphabetically.
+	 */
+	private function extract_departments( array $all_users ): array {
+		$counts = array();
+		foreach ( $all_users as $user ) {
+			$dept = trim( $user['department'] ?? '' );
+			if ( '' === $dept ) {
+				continue;
+			}
+			if ( ! isset( $counts[ $dept ] ) ) {
+				$counts[ $dept ] = 0;
+			}
+			++$counts[ $dept ];
+		}
+		ksort( $counts );
+		return $counts;
+	}
+
+	/**
+	 * Slice a filtered user array for the requested page.
+	 *
+	 * @param array $users    Filtered user array.
+	 * @param int   $page     Requested page (1-based).
+	 * @param int   $per_page Items per page.
+	 * @return array { users: array, total: int, total_pages: int, current_page: int, offset: int }
+	 */
+	private function paginate_users( array $users, int $page, int $per_page ): array {
+		$total       = count( $users );
+		$total_pages = $per_page > 0 ? (int) ceil( $total / $per_page ) : 1;
+		$total_pages = max( 1, $total_pages );
+		$page        = min( max( 1, $page ), $total_pages );
+		$offset      = ( $page - 1 ) * $per_page;
+		return array(
+			'users'        => array_slice( $users, $offset, $per_page ),
+			'total'        => $total,
+			'total_pages'  => $total_pages,
+			'current_page' => $page,
+			'offset'       => $offset,
+		);
+	}
+
+	/**
+	 * Build a pagination URL for the given page number, preserving all current
+	 * ldap_* query params except ldap_page which is replaced.
+	 *
+	 * @param int $page Target page number.
+	 * @return string URL (not escaped — caller must use esc_url()).
+	 */
+	private function build_nav_url( int $page ): string {
+		return add_query_arg( 'ldap_page', $page, remove_query_arg( 'ldap_page' ) );
+	}
+
+	// -------------------------------------------------------------------------
 
 	/**
 	 * Return users from cache or fetch fresh from LDAP.
